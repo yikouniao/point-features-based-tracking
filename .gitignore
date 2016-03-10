@@ -3,3 +3,6 @@
 *.filters
 *.user
 /Debug
+
+# exclude the test image
+Witch_Yoshino.png
