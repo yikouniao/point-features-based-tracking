@@ -3,7 +3,12 @@
 using namespace cv;
 
 void FastFeatureDetectorT::detect(cv::Mat img, std::vector<cv::KeyPoint>& keypoints, cv::Mat mask) {
-  //FAST(img, keypoints, threshold, nonmaxSuppression, type);
+  if (img.depth() != CV_8U) {
+    std::cerr << "Convert the image into 'unsigned char' first!\n";
+    return;
+  }
+
+  FAST(img, keypoints, threshold, non_max_suppression);
   KeyPointsMask(keypoints, mask);
 }
 
@@ -16,4 +21,9 @@ void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const Mat& mask) {
     return;
 
   keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), MaskPredicateT(mask)), keypoints.end());
+}
+
+void FAST(Mat _img, std::vector<KeyPoint>& keypoints, int threshold, bool non_max_suppression) {
+  int i, j, k, pixel[25];
+  threshold = std::min(std::max(threshold, 0), 255);
 }
