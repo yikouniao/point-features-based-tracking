@@ -26,4 +26,6 @@ void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const Mat& mask) {
 void FAST(Mat _img, std::vector<KeyPoint>& keypoints, int threshold, bool non_max_suppression) {
   int i, j, k, pixel[25];
   threshold = std::min(std::max(threshold, 0), 255);
+  keypoints.clear();
+
 }
