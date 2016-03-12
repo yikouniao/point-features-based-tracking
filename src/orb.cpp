@@ -23,7 +23,7 @@ void ORB() {
   cv::Mat mask;
   int fastThreshold(20);
 
-#if 0
+#if 1
   FastFeatureDetectorT* fd = &FastFeatureDetectorT(fastThreshold, true);
   fd->detect(img, keypoints, mask);
 #else
