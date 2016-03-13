@@ -1,4 +1,5 @@
 #include "fast.h"
+#include <vector>
 
 using namespace cv;
 
@@ -24,24 +25,31 @@ void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const Mat& mask) {
 }
 
 void FAST(Mat img, std::vector<KeyPoint>& keypoints, int threshold, bool non_max_suppression) {
-  int i, j, k, circle[25];
   threshold = std::min(std::max(threshold, 0), 255);
   keypoints.clear();
-  GetCircle(img.cols, circle);
+  int circle[25];
+  get_circle(img.cols, circle);
+  unsigned char threshold_tab[511];
+  get_threshold_tab(threshold, threshold_tab);
+  std::vector<std::vector<unsigned char>> score_buf(3, std::vector<unsigned char>(img.cols, 0));
+  std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols, 0));
+  std::vector<int> ncorners(3, 0);
 }
 
-void GetCircle(int img_cols, int* circle) {
+void get_circle(int img_cols, int* circle) {
   // The first point is three lines before the central point.
   // Other points are arranged clockwise.
-  circle[0] = -img_cols * 3;
-  circle[1] = -img_cols * 3 + 1;
-  circle[2] = -img_cols * 2 + 2;
-  circle[3] = -img_cols + 3;
-  circle[4] = 3;
-  circle[5] = img_cols + 3;
-  circle[6] = img_cols * 2 + 2;
-  circle[7] = img_cols * 3 + 1;
-  circle[8] = img_cols * 3;
+  // Continue the circle in order not to miss continuous arcs
+  // which include circle[0].
+  circle[0] = circle[16] = -img_cols * 3;
+  circle[1] = circle[17] = -img_cols * 3 + 1;
+  circle[2] = circle[18] = -img_cols * 2 + 2;
+  circle[3] = circle[19] = -img_cols + 3;
+  circle[4] = circle[20] = 3;
+  circle[5] = circle[21] = img_cols + 3;
+  circle[6] = circle[22] = img_cols * 2 + 2;
+  circle[7] = circle[23] = img_cols * 3 + 1;
+  circle[8] = circle[24] = img_cols * 3;
   circle[9] = img_cols * 3 - 1;
   circle[10] = img_cols * 2 - 2;
   circle[11] = img_cols - 3;
@@ -49,15 +57,11 @@ void GetCircle(int img_cols, int* circle) {
   circle[13] = -img_cols - 3;
   circle[14] = -img_cols * 2 - 2;
   circle[15] = -img_cols * 3 - 1;
-  // Continue the circle in order not to miss continuous arcs
-  // which include circle[0].
-  circle[16] = -img_cols * 3;
-  circle[17] = -img_cols * 3 + 1;
-  circle[18] = -img_cols * 2 + 2;
-  circle[19] = -img_cols + 3;
-  circle[20] = 3;
-  circle[21] = img_cols + 3;
-  circle[22] = img_cols * 2 + 2;
-  circle[23] = img_cols * 3 + 1;
-  circle[24] = img_cols * 3;
+}
+
+void get_threshold_tab(int threshold, unsigned char* threshold_tab) {
+  for (size_t i = 0; i < 511; ++i) {
+    int vd = i - 255;
+    threshold_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
+  }
 }

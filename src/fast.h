@@ -21,4 +21,5 @@ private:
 
 void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const cv::Mat& mask);
 void FAST(cv::Mat _img, std::vector<cv::KeyPoint>& keypoints, int threshold, bool non_max_suppression);
-void GetCircle(int img_cols, int* circle);
+void get_circle(int img_cols, int* circle);
+void get_threshold_tab(int threshold, unsigned char* threshold_tab);

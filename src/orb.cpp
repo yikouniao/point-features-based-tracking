@@ -9,13 +9,13 @@ void ORB() {
 
   unsigned char m[9][9] = { 
     {  50,  50,  50,  50,  50,  50,  50,  50,  50 },
-    {  50,  50,  50, 222, 222, 222,  50,  50,  50 },
+    {  50,  50,  50, 222, 222,  50,  50,  50,  50 },
     {  50,  50, 222,  50,  50,  50, 222,  50,  50 },
-    {  50, 222,  50,  50,  50,  50,  50, 222,  50 },
-    {  50, 222,  50,  50,  50,  50,  50, 222,  50 },
-    {  50, 222,  50,  50,  50,  50,  50, 222,  50 },
-    {  50,  50, 222,  50,  50,  50, 222,  50,  50 },
-    {  50,  50,  50, 222, 222, 222,  50,  50,  50 },
+    {  50,   0,  50,  50,  50,  50,  50, 222,  50 },
+    {  50,   0,  50,  50,  50,  50,  50, 222,  50 },
+    {  50,   0,  50,  50,  50,  50,  50,   0,  50 },
+    {  50,  50,   0,  50,  50,  50,   0,  50,  50 },
+    {  50,  50,  50,   0,   0,   0,  50,  50,  50 },
     {  50,  50,  50,  50,  50,  50,  50,  50,  50 }};
   Mat img = Mat(9, 9, CV_8U, m);
 
@@ -24,7 +24,7 @@ void ORB() {
   int fastThreshold(20);
 
 #if 1
-  FastFeatureDetectorT* fd = &FastFeatureDetectorT(fastThreshold, true);
+  FastFeatureDetectorT* fd = new FastFeatureDetectorT(fastThreshold, true);
   fd->detect(img, keypoints, mask);
 #else
   Ptr<FastFeatureDetector> fd = FastFeatureDetector::create(fastThreshold, true);
