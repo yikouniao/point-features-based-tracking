@@ -31,9 +31,17 @@ void FAST(Mat img, std::vector<KeyPoint>& keypoints, int threshold, bool non_max
   get_circle(img.cols, circle);
   unsigned char threshold_tab[511];
   get_threshold_tab(threshold, threshold_tab);
-  std::vector<std::vector<unsigned char>> score_buf(3, std::vector<unsigned char>(img.cols, 0));
+  std::vector<std::vector<int>> score_buf(3, std::vector<int>(img.cols, 0));
   std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols, 0));
   std::vector<int> ncorners(3, 0);
+
+  for (int i = 3; i < img.rows - 2; ++i) {
+    int curr = i % 3, prev = (i - 1) % 3, pprev = (i - 2) % 3;
+    score_buf[curr].clear();
+    for (int j = 3; j < img.cols - 3; ++j) {
+      const unsigned char* v = img.ptr<unsigned char>(i) + j;
+    }
+  }
 }
 
 void get_circle(int img_cols, int* circle) {
