@@ -5,7 +5,7 @@ class FastFeatureDetectorT {
  public:
   FastFeatureDetectorT(int threshold_, bool non_max_suppression_)
       : threshold(threshold_), non_max_suppression(non_max_suppression_) {}
-  void detect(cv::Mat img, std::vector<cv::KeyPoint>& keypoints, cv::Mat mask);
+  void detect(const cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, const cv::Mat& mask);
   int threshold;
   bool non_max_suppression;
 };
@@ -19,7 +19,8 @@ private:
   const cv::Mat mask;
 };
 
-void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const cv::Mat& mask);
-void FAST(cv::Mat _img, std::vector<cv::KeyPoint>& keypoints, int threshold, bool non_max_suppression);
-void get_circle(int img_cols, int* circle);
-void get_threshold_tab(int threshold, unsigned char* threshold_tab);
+static void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const cv::Mat& mask);
+void FAST(const cv::Mat& _img, std::vector<cv::KeyPoint>& keypoints, int threshold, bool non_max_suppression);
+static void get_circle(int img_cols, int* circle);
+static void get_threshold_tab(int threshold, unsigned char* threshold_tab);
+static int get_score_buf(const unsigned char* v, const int* circle);
