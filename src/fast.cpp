@@ -33,54 +33,71 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
   get_threshold_tab(threshold, threshold_tab);
   std::vector<std::vector<int>> score_buf(3, std::vector<int>(img.cols, 0));
   std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols, 0));
-  std::vector<int> ncorners(3, 0);
+  std::vector<size_t> ncorners(3, 0);
 
   for (int i = 3; i < img.rows - 2; ++i) {
     int curr = i % 3, prev = (i - 1) % 3, pprev = (i - 2) % 3;
     score_buf[curr].clear();
     ncorners[curr] = 0;
-    for (int j = 3; j < img.cols - 3; ++j) {
-      const unsigned char* v = img.ptr<unsigned char>(i) + j;
-      unsigned char* tab = threshold_tab + 255 - v[0];
 
-      unsigned char d = tab[v[circle[0]]] | tab[v[circle[8]]];
+    if (i < img.rows - 3) {
+      for (int j = 3; j < img.cols - 3; ++j) {
+        const unsigned char* v = img.ptr<unsigned char>(i) + j;
+        unsigned char* tab = threshold_tab + 255 - v[0];
 
-      if (!d)
-        continue;
+        unsigned char d = tab[v[circle[0]]] | tab[v[circle[8]]];
 
-      d &= tab[v[circle[2]]] | tab[v[circle[10]]];
-      d &= tab[v[circle[4]]] | tab[v[circle[12]]];
-      d &= tab[v[circle[6]]] | tab[v[circle[14]]];
-      
-      if (!d)
-        continue;
+        if (!d)
+          continue;
 
-      d &= tab[v[circle[1]]] | tab[v[circle[9]]];
-      d &= tab[v[circle[3]]] | tab[v[circle[11]]];
-      d &= tab[v[circle[5]]] | tab[v[circle[13]]];
-      d &= tab[v[circle[7]]] | tab[v[circle[15]]];
+        d &= tab[v[circle[2]]] | tab[v[circle[10]]];
+        d &= tab[v[circle[4]]] | tab[v[circle[12]]];
+        d &= tab[v[circle[6]]] | tab[v[circle[14]]];
+        
+        if (!d)
+          continue;
 
-      if (d) {
-        unsigned char threshold_flag{0};
-        for (size_t k = 0, count = 0; k < 25; ++k) {
-          if (v[circle[k]] - v[0] > threshold) {
-            threshold_flag == 2 ? ++count : count = 1;
-            threshold_flag = 2;
-          } else if (v[circle[1]] - v[0] < -threshold) {
-            threshold_flag == 1 ? ++count : count = 1;
-            threshold_flag = 1;
-          } else {
-            count = 0;
-            threshold_flag = 0;
-          }
-          if (count > 8) {
-            score_buf[curr][j] = get_score_buf(v, circle);
-            position_buf[curr][ncorners[curr]] = j;
-            ++ncorners[curr];
-            break;
+        d &= tab[v[circle[1]]] | tab[v[circle[9]]];
+        d &= tab[v[circle[3]]] | tab[v[circle[11]]];
+        d &= tab[v[circle[5]]] | tab[v[circle[13]]];
+        d &= tab[v[circle[7]]] | tab[v[circle[15]]];
+
+        if (d) {
+          unsigned char threshold_flag{0};
+          for (size_t k = 0, count = 0; k < 25; ++k) {
+            if (v[circle[k]] - v[0] > threshold) {
+              threshold_flag == 2 ? ++count : count = 1;
+              threshold_flag = 2;
+            } else if (v[circle[1]] - v[0] < -threshold) {
+              threshold_flag == 1 ? ++count : count = 1;
+              threshold_flag = 1;
+            } else {
+              count = 0;
+              threshold_flag = 0;
+            }
+            if (count > 8) {
+              score_buf[curr][j] = get_score_buf(v, circle);
+              position_buf[curr][ncorners[curr]] = j;
+              ++ncorners[curr];
+              break;
+            }
           }
         }
       }
+    }
+
+    if (i == 3)
+      continue;
+
+    for (size_t k = 0; k < ncorners[prev]; ++k) {
+      int j = position_buf[prev][k];
+      int score = score_buf[prev][j];
+      if (!non_max_suppression ||
+          (score > score_buf[prev][j - 1] && score > score_buf[prev][j + 1] &&
+           score > score_buf[pprev][j - 1] && score > score_buf[pprev][j + 1] &&
+           score > score_buf[curr][j - 1] && score > score_buf[curr][j + 1] &&
+           score > score_buf[pprev][j] && score > score_buf[curr][j]))
+        keypoints.push_back({(float)j, (float)(i - 1), 7.f, -1.f, (float)score});
     }
   }
 }
