@@ -7,7 +7,7 @@ void FastFeatureDetector::detect(const Mat& img, std::vector<KeyPoint>& keypoint
 }
 
 bool MaskPredicate::operator() (const KeyPoint& key_pt) const {
-  return mask.data[(int)(key_pt.y + 0.5f)][(int)(key_pt.x + 0.5f)] == 0;
+  return mask((int)(key_pt.y + 0.5f), (int)(key_pt.x + 0.5f)) == 0;
 }
 
 static void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
@@ -30,13 +30,13 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
 
   for (size_t i = 3; i < img.rows - 2; ++i) {
     int curr = i % 3, prev = (i - 1) % 3, pprev = (i - 2) % 3;
-    score_buf[curr].clear();
+    std::fill(score_buf[curr].begin(), score_buf[curr].end(), 0);
     ncorners[curr] = 0;
 
     // When i == img.rows - 2, We only need to check the keypoints in previous row.
     if (i < img.rows - 3) {
       for (size_t j = 3; j < img.cols - 3; ++j) {
-        const unsigned char* v = img.data[i] + j;
+        const unsigned char* v = &img(i, j);
         unsigned char* tab = threshold_tab + 255 - v[0];
 
         unsigned char d = tab[v[circle[0]]] | tab[v[circle[8]]];
@@ -62,7 +62,7 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
             if (v[circle[k]] - v[0] > threshold) {
               threshold_flag == 2 ? ++count : count = 1;
               threshold_flag = 2;
-            } else if (v[circle[1]] - v[0] < -threshold) {
+            } else if (v[circle[k]] - v[0] < -threshold) {
               threshold_flag == 1 ? ++count : count = 1;
               threshold_flag = 1;
             } else {
