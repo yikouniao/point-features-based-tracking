@@ -1,23 +1,24 @@
 #include "fast.h"
 #include <algorithm>
 
-void FastFeatureDetector::detect(const Mat& img, std::vector<KeyPoint>& keypoints, const Mat& mask) {
+void FastFeatureDetector::detect(
+    const Mat& img, std::vector<KeyPoint>& keypoints, const Mat& mask) {
   FAST(img, keypoints, threshold, non_max_suppression);
   KeyPointsMask(keypoints, mask);
-}
-
-bool MaskPredicate::operator() (const KeyPoint& key_pt) const {
-  return mask((int)(key_pt.y + 0.5f), (int)(key_pt.x + 0.5f)) == 0;
 }
 
 static void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
   if (mask.empty())
     return;
 
-  keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), MaskPredicate(mask)), keypoints.end());
+  for (auto i = keypoints.begin(); i != keypoints.end();) {
+    i = mask((size_t)(i->y + .5f), (size_t)(i->x + .5f)) ?
+          keypoints.erase(i) : ++i;
+  }
 }
 
-void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool non_max_suppression) {
+void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
+          bool non_max_suppression) {
   threshold = std::min(std::max(threshold, 0), 255);
   keypoints.clear();
   int circle[25];
@@ -33,7 +34,8 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
     std::fill(score_buf[curr].begin(), score_buf[curr].end(), 0);
     ncorners[curr] = 0;
 
-    // When i == img.rows - 2, We only need to check the keypoints in previous row.
+    // When i == img.rows - 2, We only need to check the keypoints
+    // in previous row.
     if (i < img.rows - 3) {
       for (size_t j = 3; j < img.cols - 3; ++j) {
         const unsigned char* v = &img(i, j);
@@ -92,10 +94,11 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
       int score = score_buf[prev][j];
       if (!non_max_suppression ||
           (score > score_buf[prev][j - 1] && score > score_buf[prev][j + 1] &&
-           score > score_buf[pprev][j - 1] && score > score_buf[pprev][j + 1] &&
-           score > score_buf[curr][j - 1] && score > score_buf[curr][j + 1] &&
-           score > score_buf[pprev][j] && score > score_buf[curr][j]))
-        keypoints.push_back({(float)j, (float)(i - 1), 7.f, -1.f, (float)score});
+           score > score_buf[pprev][j - 1] && score > score_buf[pprev][j] &&
+           score > score_buf[pprev][j + 1] && score > score_buf[curr][j]) &&
+           score > score_buf[curr][j - 1] && score > score_buf[curr][j + 1])
+        keypoints.push_back(
+          {(float)j, (float)(i - 1), 7.f, -1.f, (float)score});
     }
   }
 }
