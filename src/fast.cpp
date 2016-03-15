@@ -32,7 +32,7 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
   unsigned char threshold_tab[511];
   get_threshold_tab(threshold, threshold_tab);
   std::vector<std::vector<int>> score_buf(3, std::vector<int>(img.cols, 0));
-  std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols, 0));
+  std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols));
   std::vector<size_t> ncorners(3, 0);
 
   for (int i = 3; i < img.rows - 2; ++i) {
