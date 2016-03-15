@@ -1,27 +1,20 @@
 #include "fast.h"
-#include <vector>
+#include <algorithm>
 
-using namespace cv;
-
-void FastFeatureDetectorT::detect(const Mat& img, std::vector<cv::KeyPoint>& keypoints, const Mat& mask) {
-  if (img.depth() != CV_8U) {
-    std::cerr << "Convert the image into 'unsigned char' first!\n";
-    return;
-  }
-
+void FastFeatureDetector::detect(const Mat& img, std::vector<KeyPoint>& keypoints, const Mat& mask) {
   FAST(img, keypoints, threshold, non_max_suppression);
   KeyPointsMask(keypoints, mask);
 }
 
-bool MaskPredicateT::operator() (const KeyPoint& key_pt) const {
-  return mask.at<uchar>((int)(key_pt.pt.y + 0.5f), (int)(key_pt.pt.x + 0.5f)) == 0;
+bool MaskPredicate::operator() (const KeyPoint& key_pt) const {
+  return mask.data[(int)(key_pt.y + 0.5f)][(int)(key_pt.x + 0.5f)] == 0;
 }
 
-static void KeyPointsMask(std::vector<cv::KeyPoint>& keypoints, const Mat& mask) {
+static void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
   if (mask.empty())
     return;
 
-  keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), MaskPredicateT(mask)), keypoints.end());
+  keypoints.erase(std::remove_if(keypoints.begin(), keypoints.end(), MaskPredicate(mask)), keypoints.end());
 }
 
 void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool non_max_suppression) {
@@ -35,14 +28,15 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
   std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols));
   std::vector<size_t> ncorners(3, 0);
 
-  for (int i = 3; i < img.rows - 2; ++i) {
+  for (size_t i = 3; i < img.rows - 2; ++i) {
     int curr = i % 3, prev = (i - 1) % 3, pprev = (i - 2) % 3;
     score_buf[curr].clear();
     ncorners[curr] = 0;
 
+    // When i == img.rows - 2, We only need to check the keypoints in previous row.
     if (i < img.rows - 3) {
-      for (int j = 3; j < img.cols - 3; ++j) {
-        const unsigned char* v = img.ptr<unsigned char>(i) + j;
+      for (size_t j = 3; j < img.cols - 3; ++j) {
+        const unsigned char* v = img.data[i] + j;
         unsigned char* tab = threshold_tab + 255 - v[0];
 
         unsigned char d = tab[v[circle[0]]] | tab[v[circle[8]]];
@@ -75,6 +69,8 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
               count = 0;
               threshold_flag = 0;
             }
+
+            // There's a keypoint, store the infos.
             if (count > 8) {
               score_buf[curr][j] = get_score_buf(v, circle);
               position_buf[curr][ncorners[curr]] = j;
@@ -86,9 +82,11 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold, bool 
       }
     }
 
+    // The first calculated row.
     if (i == 3)
       continue;
 
+    // Select keypoints in previous row.
     for (size_t k = 0; k < ncorners[prev]; ++k) {
       int j = position_buf[prev][k];
       int score = score_buf[prev][j];
