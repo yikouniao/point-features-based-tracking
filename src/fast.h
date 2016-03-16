@@ -14,7 +14,6 @@ class FastFeatureDetector {
   bool non_max_suppression;
 };
 
-static void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask);
 void FAST(const Mat& _img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression);
 static void get_circle(int img_cols, int* circle);

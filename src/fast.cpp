@@ -7,16 +7,6 @@ void FastFeatureDetector::detect(
   KeyPointsMask(keypoints, mask);
 }
 
-static void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
-  if (mask.empty())
-    return;
-
-  for (auto i = keypoints.begin(); i != keypoints.end();) {
-    i = mask((size_t)(i->y + .5f), (size_t)(i->x + .5f)) ?
-          keypoints.erase(i) : ++i;
-  }
-}
-
 void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression) {
   threshold = std::min(std::max(threshold, 0), 255);
