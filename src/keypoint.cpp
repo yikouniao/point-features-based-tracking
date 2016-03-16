@@ -27,6 +27,8 @@ void KeyPointsFilterByImgBorder(std::vector<KeyPoint>& keypoints,
 }
 
 void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points) {
-  std::sort(keypoints.begin(), keypoints.end(), std::greater<KeyPoint>());
-  keypoints.erase(keypoints.begin() + n_points, keypoints.end());
+  if (n_points > keypoints.size()) {
+    std::sort(keypoints.begin(), keypoints.end(), std::greater<KeyPoint>());
+    keypoints.erase(keypoints.begin() + n_points, keypoints.end());
+  }
 }

@@ -4,10 +4,10 @@ bool Mat::empty() const {
   return data == nullptr;
 }
 
-unsigned char& Mat::operator() (size_t x, size_t y) {
-  return data[x * cols + y];
+unsigned char& Mat::operator() (size_t i, size_t j) {
+  return data[i * cols + j];
 }
 
-const unsigned char& Mat::operator() (size_t x, size_t y) const {
-  return ((const unsigned char*)data)[x * cols + y];
+const unsigned char& Mat::operator() (size_t i, size_t j) const {
+  return ((const unsigned char*)data)[i * cols + j];
 }

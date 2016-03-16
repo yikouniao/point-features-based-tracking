@@ -22,5 +22,5 @@ class KeyPoint {
 
 void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask);
 void KeyPointsFilterByImgBorder(std::vector<KeyPoint>& keypoints,
-                                const Mat& img, int border_width);
+                                const Mat& img, size_t border_width);
 void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points);
