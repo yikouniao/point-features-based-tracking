@@ -12,8 +12,7 @@ void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
     return;
 
   for (auto i = keypoints.begin(); i != keypoints.end();) {
-    mask((size_t)(i->y + .5f), (size_t)(i->x + .5f)) ?
-      i = keypoints.erase(i) : ++i;
+    mask(lround(i->y), lround(i->x)) ? i = keypoints.erase(i) : ++i;
   }
 }
 
