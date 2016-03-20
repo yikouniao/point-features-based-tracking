@@ -1,5 +1,9 @@
 #include "mat.h"
 
+Mat::~Mat() {
+  delete[] data;
+}
+
 bool Mat::empty() const {
   return data == nullptr;
 }

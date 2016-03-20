@@ -3,6 +3,7 @@
 #include "mat.h"
 #include "keypoint.h"
 #include <vector>
+#include <array>
 
 class FastFeatureDetector {
  public:
@@ -16,6 +17,8 @@ class FastFeatureDetector {
 
 void FAST(const Mat& _img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression);
-static void get_circle(int img_cols, int* circle);
-static void get_threshold_tab(int threshold, unsigned char* threshold_tab);
-static int get_score_buf(const unsigned char* v, const int* circle);
+static void get_circle(int img_cols, std::array<int, 25>& circle);
+static void get_thres_tab(int threshold,
+                          std::array<unsigned char, 511>& thres_tab);
+static int get_score_buf(const unsigned char* v,
+                         const std::array<int, 25>& circle);

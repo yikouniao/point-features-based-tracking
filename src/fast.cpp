@@ -11,10 +11,10 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression) {
   threshold = std::min(std::max(threshold, 0), 255);
   keypoints.clear();
-  int circle[25];
+  std::array<int, 25> circle;
   get_circle(img.cols, circle);
-  unsigned char threshold_tab[511];
-  get_threshold_tab(threshold, threshold_tab);
+  std::array<unsigned char, 511> thres_tab;
+  get_thres_tab(threshold, thres_tab);
   std::vector<std::vector<int>> score_buf(3, std::vector<int>(img.cols, 0));
   std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols));
   std::vector<size_t> ncorners(3, 0);
@@ -29,24 +29,25 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
     if (i < img.rows - 3) {
       for (size_t j = 3; j < img.cols - 3; ++j) {
         const unsigned char* v = &img(i, j);
-        unsigned char* tab = threshold_tab + 255 - v[0];
+        unsigned int tab = 255 - v[0];
 
-        unsigned char d = tab[v[circle[0]]] | tab[v[circle[8]]];
+        unsigned char d = thres_tab[tab + v[circle[0]]] |
+                          thres_tab[tab + v[circle[8]]];
 
         if (!d)
           continue;
 
-        d &= tab[v[circle[2]]] | tab[v[circle[10]]];
-        d &= tab[v[circle[4]]] | tab[v[circle[12]]];
-        d &= tab[v[circle[6]]] | tab[v[circle[14]]];
+        d &= thres_tab[tab + v[circle[2]]] | thres_tab[tab + v[circle[10]]];
+        d &= thres_tab[tab + v[circle[4]]] | thres_tab[tab + v[circle[12]]];
+        d &= thres_tab[tab + v[circle[6]]] | thres_tab[tab + v[circle[14]]];
         
         if (!d)
           continue;
 
-        d &= tab[v[circle[1]]] | tab[v[circle[9]]];
-        d &= tab[v[circle[3]]] | tab[v[circle[11]]];
-        d &= tab[v[circle[5]]] | tab[v[circle[13]]];
-        d &= tab[v[circle[7]]] | tab[v[circle[15]]];
+        d &= thres_tab[tab + v[circle[1]]] | thres_tab[tab + v[circle[9]]];
+        d &= thres_tab[tab + v[circle[3]]] | thres_tab[tab + v[circle[11]]];
+        d &= thres_tab[tab + v[circle[5]]] | thres_tab[tab + v[circle[13]]];
+        d &= thres_tab[tab + v[circle[7]]] | thres_tab[tab + v[circle[15]]];
 
         if (d) {
           unsigned char threshold_flag{0};
@@ -93,7 +94,7 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
   }
 }
 
-static void get_circle(int img_cols, int* circle) {
+static void get_circle(int img_cols, std::array<int, 25>& circle) {
   // The first point is three lines before the central point.
   // Other points are arranged clockwise.
   // Continue the circle in order not to miss continuous arcs
@@ -116,14 +117,16 @@ static void get_circle(int img_cols, int* circle) {
   circle[15] = -img_cols * 3 - 1;
 }
 
-static void get_threshold_tab(int threshold, unsigned char* threshold_tab) {
+static void get_thres_tab(int threshold,
+                          std::array<unsigned char, 511>& thres_tab) {
   for (size_t i = 0; i < 511; ++i) {
     int vd = i - 255;
-    threshold_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
+    thres_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
   }
 }
 
-static int get_score_buf(const unsigned char* v, const int* circle) {
+static int get_score_buf(const unsigned char* v,
+                         const std::array<int, 25>& circle) {
   int curr_score_buf{0};
   for (size_t i = 0; i < 16 ; ++i) {
     curr_score_buf += abs(v[circle[i]] - v[0]);

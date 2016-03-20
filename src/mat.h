@@ -6,6 +6,7 @@ class Mat {
   Mat(size_t rows_, size_t cols_, void* data_ = nullptr)
       : rows(rows_), cols(cols_), data((unsigned char*)data_) {}
   Mat() : rows(0), cols(0), data(nullptr) {}
+  ~Mat();
 
   // returns reference to a specified element
   unsigned char& operator() (size_t i, size_t j);
