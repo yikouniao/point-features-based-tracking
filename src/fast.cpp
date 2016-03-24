@@ -11,9 +11,9 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression) {
   threshold = std::min(std::max(threshold, 0), 255);
   keypoints.clear();
-  std::array<int, 25> circle;
-  get_circle(img.cols, circle);
-  std::array<unsigned char, 511> thres_tab;
+  std::vector<int> circle(25);
+  get_circle(img.step, circle);
+  std::vector<unsigned char> thres_tab(511);
   get_thres_tab(threshold, thres_tab);
   std::vector<std::vector<int>> score_buf(3, std::vector<int>(img.cols, 0));
   std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols));
@@ -94,31 +94,31 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
   }
 }
 
-static void get_circle(int img_cols, std::array<int, 25>& circle) {
+static void get_circle(int img_step, std::vector<int>& circle) {
   // The first point is three lines before the central point.
   // Other points are arranged clockwise.
   // Continue the circle in order not to miss continuous arcs
   // which include circle[0].
-  circle[0] = circle[16] = -img_cols * 3;
-  circle[1] = circle[17] = -img_cols * 3 + 1;
-  circle[2] = circle[18] = -img_cols * 2 + 2;
-  circle[3] = circle[19] = -img_cols + 3;
+  circle[0] = circle[16] = -img_step * 3;
+  circle[1] = circle[17] = -img_step * 3 + 1;
+  circle[2] = circle[18] = -img_step * 2 + 2;
+  circle[3] = circle[19] = -img_step + 3;
   circle[4] = circle[20] = 3;
-  circle[5] = circle[21] = img_cols + 3;
-  circle[6] = circle[22] = img_cols * 2 + 2;
-  circle[7] = circle[23] = img_cols * 3 + 1;
-  circle[8] = circle[24] = img_cols * 3;
-  circle[9] = img_cols * 3 - 1;
-  circle[10] = img_cols * 2 - 2;
-  circle[11] = img_cols - 3;
+  circle[5] = circle[21] = img_step + 3;
+  circle[6] = circle[22] = img_step * 2 + 2;
+  circle[7] = circle[23] = img_step * 3 + 1;
+  circle[8] = circle[24] = img_step * 3;
+  circle[9] = img_step * 3 - 1;
+  circle[10] = img_step * 2 - 2;
+  circle[11] = img_step - 3;
   circle[12] = -3;
-  circle[13] = -img_cols - 3;
-  circle[14] = -img_cols * 2 - 2;
-  circle[15] = -img_cols * 3 - 1;
+  circle[13] = -img_step - 3;
+  circle[14] = -img_step * 2 - 2;
+  circle[15] = -img_step * 3 - 1;
 }
 
 static void get_thres_tab(int threshold,
-                          std::array<unsigned char, 511>& thres_tab) {
+                          std::vector<unsigned char>& thres_tab) {
   for (size_t i = 0; i < 511; ++i) {
     int vd = i - 255;
     thres_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
@@ -126,7 +126,7 @@ static void get_thres_tab(int threshold,
 }
 
 static int get_score_buf(const unsigned char* v,
-                         const std::array<int, 25>& circle) {
+                         const std::vector<int>& circle) {
   int curr_score_buf{0};
   for (size_t i = 0; i < 16 ; ++i) {
     curr_score_buf += abs(v[circle[i]] - v[0]);

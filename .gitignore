@@ -4,6 +4,10 @@
 *.user
 /Debug
 
+# exclude the images
+/complex building/*
+/bridge/*
+
 # exclude the test image
 Witch_Yoshino.png
 
