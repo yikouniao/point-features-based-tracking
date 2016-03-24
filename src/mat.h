@@ -17,7 +17,7 @@ class Mat {
   // returns const reference to a specified element
   const unsigned char& operator() (size_t i, size_t j) const;
   Mat Mat::operator()(const Rect& roi) const;
-  Mat& operator= (const Mat& m); // assignment operator
+  Mat& operator= (const Mat& m); // assignment operator, shallow copy
 
   bool empty() const; // return true if data == nullptr
 
