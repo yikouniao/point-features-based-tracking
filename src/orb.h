@@ -1,7 +1,7 @@
 #pragma once
-#include "rect.h"
+
+#include "types.h"
 #include <vector>
-#include "keypoint.h"
 
 void ORB();
 static void GetKeyPoints();

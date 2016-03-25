@@ -2,7 +2,7 @@
 
 #include "bmp-file.h"
 #include <string>
-#include "mat.h"
+#include "types.h"
 
 // Read a image file
 // Consider 8-bit gray .bmp file only.

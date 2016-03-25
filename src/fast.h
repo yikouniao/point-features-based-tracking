@@ -1,7 +1,6 @@
 #pragma once
 
-#include "mat.h"
-#include "keypoint.h"
+#include "types.h"
 #include <vector>
 
 class FastFeatureDetector {

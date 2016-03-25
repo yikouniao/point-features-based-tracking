@@ -10,6 +10,7 @@
 
 # exclude the test image
 Witch_Yoshino.png
+Witch_Yoshino.bmp
 
 /src/test-cv.cpp
 /src/test-cv.h
