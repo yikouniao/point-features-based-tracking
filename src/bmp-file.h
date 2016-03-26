@@ -13,7 +13,8 @@ public:
 struct BMPFileHeader {
   // img_size = rows * cols * bytes_per_pixel
   BMPFileHeader(size_t img_size = 0);
-  ushort bf_type;
+  // Exclude bf_type in order to read file header correctly.
+  //ushort bf_type;
   uint bf_size;
   ushort bf_reserved1;
   ushort bf_reserved2;

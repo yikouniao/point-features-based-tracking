@@ -27,7 +27,7 @@ void ImgWrite(std::string f_name, const Mat& img) {
 
 std::string GetFileExt(const std::string& f_name) {
   std::string::size_type n = f_name.rfind('.');
-  std::string ext(0);
+  std::string ext;
   if (n != std::string::npos) {
     for (++n; n < f_name.length(); ++n) {
       ext += toupper(f_name[n]);

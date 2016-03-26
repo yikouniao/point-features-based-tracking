@@ -7,20 +7,16 @@ Mat BMP::Read(std::string f_name) {
   BMPInfoHeader* bmp_info_header = new BMPInfoHeader();
 
   // Open the file
-  errno_t err = fopen_s(&fp, f_name.c_str(), "rb");
-  if (err != 0)
+  if (errno_t err = fopen_s(&fp, f_name.c_str(), "rb"))
     Err("Cannot open file " + f_name + ".");
 
-  if (fread(bmp_file_header, sizeof(BMPFileHeader), 1, fp) !=
-        sizeof(BMPFileHeader))
-    Err("Error in reading file header of " + f_name + ".");
-
-  if (bmp_file_header->bf_type != 0x4D42)
+  ushort bf_type;
+  fread(&bf_type, 1, sizeof(ushort), fp);
+  if (0x4D42 != bf_type)
     Err(f_name + " is not a bmp file.");
-
-  if (fread(&bmp_info_header, sizeof(BMPInfoHeader), 1, fp) !=
-        sizeof(BMPInfoHeader))
-    Err("Error in reading info header of " + f_name + ".");
+  
+  fread(bmp_file_header, sizeof(BMPFileHeader), 1, fp);
+  fread(bmp_info_header, sizeof(BMPInfoHeader), 1, fp);
 
   Mat img(bmp_info_header->bi_height, bmp_info_header->bi_width);
 
@@ -73,15 +69,17 @@ void BMP::Write(std::string f_name, const Mat& img) {
   if (err != 0)
     Err("Cannot open file " + f_name + ".");
   
-  fwrite(&bmp_file_header, sizeof(BMPFileHeader), 1, fp);
-  fwrite(&bmp_info_header, sizeof(BMPInfoHeader), 1, fp);
+  ushort bf_type = 0x4D42;
+  fwrite(&bf_type, sizeof(bf_type), 1, fp);
+  fwrite(bmp_file_header, sizeof(BMPFileHeader), 1, fp);
+  fwrite(bmp_info_header, sizeof(BMPInfoHeader), 1, fp);
   fwrite(bmi_colors, sizeof(RGBQuad), 256, fp);
   
   size_t linebytes = ((img.cols + 3) / 4) * 4;
   size_t skipstep = linebytes - img.cols;
   uchar skip[3] = {0};
 
-  for (size_t i = img.rows - 1; i >= 0; --i) {
+  for (int i = img.rows - 1; i >= 0; --i) {
     fwrite(&img(i, 0), 1, img.cols, fp);
     fwrite(skip, 1, skipstep, fp);
   }
@@ -93,8 +91,7 @@ void BMP::Write(std::string f_name, const Mat& img) {
 }
 
 BMPFileHeader::BMPFileHeader(size_t img_size) :
-    bf_type((short)0x4D42), bf_reserved1(0), bf_reserved2(0),
-    bf_off_bits(54 + 256 * 4) {
+    bf_reserved1(0), bf_reserved2(0), bf_off_bits(54 + 256 * 4) {
   bf_size = img_size + bf_off_bits;
 }
 
