@@ -11,14 +11,19 @@ public:
 };
 
 struct BMPFileHeader {
+  // img_size = rows * cols * bytes_per_pixel
+  BMPFileHeader(size_t img_size = 0);
   ushort bf_type;
   uint bf_size;
   ushort bf_reserved1;
   ushort bf_reserved2;
-  uint bf_offBits;
+  uint bf_off_bits;
 };
 
 struct BMPInfoHeader {
+  // rows and cols are size of the image.
+  // bit_count can be 8, 16, 24, 32...
+  BMPInfoHeader(size_t rows = 0, size_t cols = 0, ushort bit_count = 8);
   uint bi_size;
   int bi_width;
   int bi_height;
@@ -33,8 +38,8 @@ struct BMPInfoHeader {
 };
 
 struct RGBQuad {
-  uchar rgb_blue;
-  uchar rgb_green;
-  uchar rgb_red;
+  uchar rgb_b;
+  uchar rgb_g;
+  uchar rgb_r;
   uchar rgb_reserved;
 };
