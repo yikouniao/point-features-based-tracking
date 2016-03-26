@@ -1,6 +1,8 @@
 #include "mat.h"
 
-Mat::~Mat() {
+Mat::~Mat() {}
+
+void Mat::Release() {
   delete[] data;
 }
 

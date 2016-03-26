@@ -9,7 +9,9 @@ Mat ImgRead(std::string f_name) {
 
   if (ext == "BMP") {
     BMP* img_file = new BMP();
-    return img_file->Read(f_name);
+    Mat img = img_file->Read(f_name);
+    delete img_file;
+    return img;
   } else {
     throw(f_name + " is not a bmp file!");
   }

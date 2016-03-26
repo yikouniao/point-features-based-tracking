@@ -31,3 +31,10 @@ struct BMPInfoHeader {
   uint bi_clr_used;
   uint bi_clr_important;
 };
+
+struct RGBQuad {
+  uchar rgb_blue;
+  uchar rgb_green;
+  uchar rgb_red;
+  uchar rgb_reserved;
+};

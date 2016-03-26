@@ -48,6 +48,7 @@ static void GetKeyPoints(int nfeatures, int border_width, const std::vector<Rect
     // FAST detectors
     FastFeatureDetector* fd = new FastFeatureDetector(fast_threshold, true);
     fd->detect(img, keypoints, mask);
+    delete fd;
 
     // Remove keypoints very close to the border
     KeyPointsFilterByImgBorder(keypoints, img, border_width);
@@ -57,6 +58,8 @@ static void GetKeyPoints(int nfeatures, int border_width, const std::vector<Rect
     
     /// octave in FAST???
   }
+
+  mask.Release();
 }
 
 static void HarrisResponses(

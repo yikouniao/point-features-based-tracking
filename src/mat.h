@@ -10,13 +10,16 @@ class Mat {
   Mat(size_t rows_, size_t cols_, void* data_ = nullptr)
       : rows(rows_), cols(cols_), step(cols_), data((unsigned char*)data_) {}
   Mat() : rows(0), cols(0), step(0), data(nullptr) {}
+  // Will not deallocate memory. Call Release() to deallocate memory
+  // if necessary.
   ~Mat();
 
+  void Release(); // Deallocate memory
   // returns reference to a specified element
   unsigned char& operator() (size_t i, size_t j);
   // returns const reference to a specified element
   const unsigned char& operator() (size_t i, size_t j) const;
-  Mat Mat::operator()(const Rect& roi) const;
+  Mat operator()(const Rect& roi) const;
   Mat& operator= (const Mat& m); // assignment operator, shallow copy
 
   bool empty() const; // return true if data == nullptr
