@@ -10,7 +10,7 @@ class Mat {
   Mat(size_t rows_, size_t cols_, void* data_ = nullptr);
   Mat(const Mat& m);
   Mat();
-  // destructors
+  // destructor
   // Will not deallocate memory. Call Release() to deallocate memory
   // if necessary.
   ~Mat();

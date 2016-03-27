@@ -7,7 +7,7 @@ template<typename T> class Point_ {
   Point_(T x_, T y_);
   Point_(const Point_& pt);
 
-  // destructors
+  // destructor
   ~Point_();
 
   // conversion to another data type
@@ -22,7 +22,7 @@ template<typename T> class Point_ {
   //// Check whether the point is inside a specified rectangle
   //bool inside(const Rect_<T>& r) const;
 
-  // operator overloadings
+  // operators overloading
   Point_<T>& operator =(const Point_& pt);
   Point_<T>& operator +=(const Point_& pt);
   Point_<T>& operator -=(const Point_& pt);
@@ -74,15 +74,15 @@ double Point_<T>::Norm() const {
   return sqrt(double(x * x + y * y));
 }
 
-// operator overloadings
+// operators overloading
 template<typename T>
-Point_<T> operator +(const Point_<T>& pta, const Point_<T>& ptb) {
-  return Point_(pta.x + ptb.x, pta.y + ptb.y);
+Point_<T> operator +(const Point_<T>& pt1, const Point_<T>& pt2) {
+  return Point_(pt1.x + pt2.x, pt1.y + pt2.y);
 }
 
 template<typename T>
-Point_<T> operator -(const Point_<T>& pta, const Point_<T>& ptb) {
-  return Point_(pta.x - ptb.x, pta.y - ptb.y);
+Point_<T> operator -(const Point_<T>& pt1, const Point_<T>& pt2) {
+  return Point_(pt1.x - pt2.x, pt1.y - pt2.y);
 }
 
 template<typename T, typename Ta>
@@ -106,13 +106,13 @@ Point_<T> operator -(const Point_<T>& pt) {
 }
 
 template<typename T>
-bool operator ==(const Point_<T>& pta, const Point_<T>& ptb) {
-  return pta.x == ptb.x && pta.y == ptb.y;
+bool operator ==(const Point_<T>& pt1, const Point_<T>& pt2) {
+  return pt1.x == pt2.x && pt1.y == pt2.y;
 }
 
 template<typename T>
-bool operator !=(const Point_<T>& pta, const Point_<T>& ptb) {
-  return pta.x != ptb.x || pta.y != ptb.y;
+bool operator !=(const Point_<T>& pt1, const Point_<T>& pt2) {
+  return pt1.x != pt2.x || pt1.y != pt2.y;
 }
 
 template<typename T>

@@ -9,7 +9,7 @@ class KeyPoint {
   KeyPoint(float x_, float y_, float diameter_, float angle_ = -1,
            float response_ = 0, int octave_ = 0, int class_id_ = -1);
 
-  // destructors
+  // destructor
   ~KeyPoint();
 
   friend bool operator >(const KeyPoint& a, const KeyPoint& b);
