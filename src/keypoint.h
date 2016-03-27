@@ -5,12 +5,14 @@
 
 class KeyPoint {
  public:
+  // constructors
   KeyPoint(float x_, float y_, float diameter_, float angle_ = -1,
-           float response_ = 0, int octave_ = 0, int class_id_ = -1)
-      : x(x_), y(y_), diameter(diameter_), angle(angle_),
-        response(response_), octave(octave_), class_id(class_id_) {}
+           float response_ = 0, int octave_ = 0, int class_id_ = -1);
 
-  friend bool operator> (const KeyPoint& a, const KeyPoint& b);
+  // destructors
+  ~KeyPoint();
+
+  friend bool operator >(const KeyPoint& a, const KeyPoint& b);
 
   float x, y; // keypoint coordinates
   float diameter; // keypoint diameter

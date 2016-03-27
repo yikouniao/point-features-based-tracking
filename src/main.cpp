@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv) {
 #if TEST
-  test();
+  //test();
 #else
   Mat a = ImgRead("Witch_Yoshino.bmp");
   //ImgWrite("Witch_Yoshino.bmp", a);

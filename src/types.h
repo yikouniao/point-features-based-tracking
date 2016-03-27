@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mat.h"
+#include "point.h"
 #include "rect.h"
 #include "keypoint.h"
 
