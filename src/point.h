@@ -19,8 +19,6 @@ template<typename T> class Point_ {
   double DDot(const Point_& pt) const;
   // L2 norm
   double Norm() const;
-  //// Check whether the point is inside a specified rectangle
-  //bool inside(const Rect_<T>& r) const;
 
   // operators overloading
   Point_<T>& operator =(const Point_& pt);
