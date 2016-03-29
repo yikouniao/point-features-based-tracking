@@ -14,7 +14,7 @@ bool operator >(const KeyPoint& a, const KeyPoint& b) {
 }
 
 void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
-  if (mask.empty())
+  if (mask.Empty())
     return;
 
   for (auto i = keypoints.begin(); i != keypoints.end();) {

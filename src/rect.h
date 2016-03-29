@@ -48,10 +48,10 @@ template<typename T> class Rect_ {
   T x, y, width, height;
 };
 
-typedef Rect_<int> Rect2i;
-typedef Rect_<float> Rect2f;
-typedef Rect_<double> Rect2d;
-typedef Rect2i Rect;
+using Recti = Rect_<int>;
+using Rectf = Rect_<float>;
+using Rectd = Rect_<double>;
+using Rect = Recti;
 
 template<typename T>
 Rect_<T>::Rect_() : x(0), y(0), width(0), height(0) {}

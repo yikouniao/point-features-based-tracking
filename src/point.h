@@ -32,10 +32,10 @@ template<typename T> class Point_ {
   T x, y; // the point coordinates
 };
 
-typedef Point_<int> Point2i;
-typedef Point_<float> Point2f;
-typedef Point_<double> Point2d;
-typedef Point2i Point;
+using Pointi = Point_<int>;
+using Pointf = Point_<float>;
+using Pointd = Point_<double>;
+using Point = Pointi;
 
 template<typename T>
 Point_<T>::Point_() : x(0), y(0) {}
