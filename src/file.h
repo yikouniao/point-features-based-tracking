@@ -4,10 +4,10 @@
 #include <string>
 #include "types.h"
 
-// Read and write a image file
-// Consider 8-bit gray .bmp file only.
+// reads and writes a image file
+// considers only 8-bit gray .bmp file
 Mat ImgRead(std::string f_name);
 void ImgWrite(std::string f_name, const Mat& img);
 
-// Get file extension and return its upper style.
+// gets file extension and return its upper style.
 std::string GetFileExt(const std::string& f_name);

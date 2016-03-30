@@ -2,15 +2,32 @@
 #include <algorithm>
 #include <functional>
 
+KeyPoint::KeyPoint(Pointf pt_, float diameter_, float angle_,
+                   float response_, int octave_, int class_id_)
+    : Pointf(pt_), diameter(diameter_), angle(angle_),
+      response(response_), octave(octave_), class_id(class_id_) {}
+
 KeyPoint::KeyPoint(float x_, float y_, float diameter_, float angle_,
                    float response_, int octave_, int class_id_)
-    : x(x_), y(y_), diameter(diameter_), angle(angle_),
+    : Pointf(x_, y_), diameter(diameter_), angle(angle_),
       response(response_), octave(octave_), class_id(class_id_) {}
 
 KeyPoint::~KeyPoint() {}
 
 bool operator >(const KeyPoint& a, const KeyPoint& b) {
   return a.response > b.response;
+}
+
+bool operator <(const KeyPoint& a, const KeyPoint& b) {
+  return a.response < b.response;
+}
+
+bool operator ==(const KeyPoint& a, const KeyPoint& b) {
+  return a.response == b.response;
+}
+
+bool operator !=(const KeyPoint& a, const KeyPoint& b) {
+  return a.response != b.response;
 }
 
 void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {

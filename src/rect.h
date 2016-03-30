@@ -23,25 +23,25 @@ template<typename T> class Rect_ {
   T Perimeter() const;
   // area (width * height)
   T Area() const;
-  // Check whether it's empty
+  // checks whether it's empty
   bool Empty() const;
 
-  // Convert its data type
+  // converts its data type
   template<typename T2> operator Rect_<T2>() const;
 
-  // Check whether the rectangle contains the point/rectangle(including bounds)
+  // checks whether the rectangle contains the point/rectangle(including bounds)
   bool Contain(const Point_<T>& pt) const;
   bool Contain(const Rect_<T>& r) const;
 
   // assignment operator
   Rect_<T>& operator =(const Rect_& r);
 
-  // Extend the rectangle range according an outer point
+  // extends the rectangle range according an outer point
   Rect_<T>& operator +=(const Point_<T>& pt);
 
-  // Compute the intersection
+  // computes the intersection
   Rect_<T>& operator &=(const Rect_<T>& r);
-  // Compute the union
+  // computes the union
   Rect_<T>& operator |=(const Rect_<T>& r);
 
   // the top-left corner Coordinates, width and height
@@ -168,7 +168,7 @@ Rect_<T>& Rect_<T>::operator +=(const Point_<T>& pt) {
   return *this;
 }
 
-// Compute the intersection
+// computes the intersection
 template<typename T>
 Rect_<T>& operator &(const Rect_<T>& r1, const Rect_<T>& r2) {
   Rect_<T> intersection();
@@ -220,7 +220,7 @@ Rect_<T>& Rect_<T>::operator &=(const Rect_<T>& r) {
   return *this;
 }
 
-// Compute the union
+// computes the union
 template<typename T>
 Rect_<T>& operator |(const Rect_<T>& r1, const Rect_<T>& r2) {
   Rect_<T> rect_union();

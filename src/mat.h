@@ -16,21 +16,21 @@ class Mat_ {
   template<size_t C>
   Mat_(T a[][C], size_t rows_);
   // destructor
-  // It will not deallocate memory. Call Release() to deallocate memory
+  // will not deallocate memory. Call Release() to deallocate memory
   // if necessary.
   ~Mat_();
 
-  void Release(); // Deallocate memory and reset all elements in the class.
+  void Release(); // deallocates memory and reset all elements in the class
 
-  bool Empty() const; // Return true if data == nullptr
+  bool Empty() const; // returns true if data == nullptr
 
-  // Release old memory, allocate new memory and assign the new contents.
+  // releases old memory, allocate new memory and assign the new contents
   void Clone(const Mat_& m);
   void Creat(size_t rows_, size_t cols_, T init_v);
 
-  // Return reference to a specified element.
+  // returns reference to a specified element
   T& operator ()(int i, int j);
-  // Return const reference to a specified element.
+  // returns const reference to a specified element
   const T& operator ()(int i, int j) const;
   Mat_<T> operator ()(const Rect_<T>& roi) const;
   Mat_<T>& operator =(const Mat_& m); // assignment operator, shallow copy
@@ -40,7 +40,6 @@ class Mat_ {
   Mat_<T>& operator +=(const Mat_<Tm>& m);
   template<typename Tm>
   Mat_<T>& operator -=(const Mat_<Tm>& m);
-  //Mat_<T>& operator *=(double a);
 
   size_t rows, cols; // the size of the matrix
   // quantity of elements from a pixel to next-row one. When the data

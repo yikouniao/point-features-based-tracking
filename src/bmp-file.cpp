@@ -6,7 +6,7 @@ Mat BMP::Read(std::string f_name) {
   BMPFileHeader* bmp_file_header = new BMPFileHeader();
   BMPInfoHeader* bmp_info_header = new BMPInfoHeader();
 
-  // Open the file
+  // opens the file
   if (errno_t err = fopen_s(&fp, f_name.c_str(), "rb"))
     Err("Cannot open file " + f_name + ".");
 
@@ -23,7 +23,7 @@ Mat BMP::Read(std::string f_name) {
   if (!(img.data = new uchar[img.rows * img.cols]))
     Err("Error in allocating memory for image data.");
 
-  // Read image data
+  // reads image data
   if (bmp_info_header->bi_bit_count == 8) {
     size_t linebytes = ((img.cols + 3) / 4) * 4;
     for (size_t i = 0; i < img.rows; ++i) {
@@ -43,7 +43,7 @@ Mat BMP::Read(std::string f_name) {
       }
     }
   } else {
-    Err("Here consider 8-bit or 24-bit bmp only.");
+    Err("Here consider only 8-bit or 24-bit bmp.");
   }
 
   delete bmp_file_header;

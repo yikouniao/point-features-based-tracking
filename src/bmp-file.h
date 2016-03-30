@@ -3,7 +3,7 @@
 #include "types.h"
 #include <string>
 
-// Consider 8-bit gray .bmp file only.
+// considers only 8-bit gray .bmp file
 class BMP {
 public:
   static Mat Read(std::string f_name);
