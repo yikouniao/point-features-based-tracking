@@ -73,7 +73,7 @@ Mat_<T>::Mat_(const Mat_& m) {
 template<typename T>
 Mat_<T>::Mat_(size_t rows_, size_t cols_, T init_v)
     : rows(rows_), cols(cols_), step(cols_) {
-  if (!(data = new T[rows * cols]{init_v}))
+  if (!(data = new (std::nothrow) T[rows * cols]{init_v}))
     Err("Error in allocating memory for Mat_<T>::data in the constructor.");
 }
 
@@ -81,7 +81,7 @@ template<typename T>
 template<size_t C>
 Mat_<T>::Mat_(T a[][C], size_t rows_) {
   rows = rows_; cols = C; step = cols;
-  if (!(data = new T[rows * cols]))
+  if (!(data = new (std::nothrow) T[rows * cols]))
     Err("Error in allocating memory for Mat_<T>::data in the constructor.");
   for (size_t i = 0; i < rows; ++i) {
     for (size_t j = 0; j < cols; ++j) {
@@ -109,7 +109,7 @@ template<typename T>
 void Mat_<T>::Clone(const Mat_<T>& m) {
   Release();
   rows = m.rows, cols = m.cols, step = m.cols;
-  if (!(data = new T[rows * cols]))
+  if (!(data = new (std::nothrow) T[rows * cols]))
     Err("Error in allocating memory for Mat_<T>::data while cloning.");
   for (size_t i = 0; i < rows; ++i) {
     for (size_t j = 0; j < cols; ++j) {
@@ -122,7 +122,7 @@ template<typename T>
 void Mat_<T>::Creat(size_t rows_, size_t cols_, T init_v) {
   Release();
   rows = rows_, cols = cols_, step = cols_;
-  if (!(data = new T[rows * cols]{ init_v }))
+  if (!(data = new (std::nothrow) T[rows * cols]{init_v}))
     Err("Error in allocating memory for Mat_<T>::data in the constructor.");
 }
 
@@ -167,7 +167,7 @@ Mat_<T1>& operator +(const Mat_<T1>& m1, const Mat_<T2>& m2) {
   if (m1.rows != m2.rows || m1.cols != m2.cols)
     return m;
   m.rows = m1.rows; m.cols = m.step = m1.cols;
-  if (!(data = new T1[m.rows * m.cols]))
+  if (!(data = new (std::nothrow) T1[m.rows * m.cols]))
     Err("Error in allocating memory in the overload of operator +.");
   for (size_t i = 0; i < m.rows; ++i) {
     for (size_t j = 0; j < m.cols; ++j) {
@@ -195,7 +195,7 @@ Mat_<T>& operator -(const Mat_<T>& m1, const Mat_<T>& m2) {
   if (m1.rows != m2.rows || m1.cols != m2.cols)
     return m;
   m.rows = m1.rows; m.cols = m.step = m1.cols;
-  if (!(data = new T[m.rows * m.cols]))
+  if (!(data = new (std::nothrow) T[m.rows * m.cols]))
     Err("Error in allocating memory in the overload of operator +.");
   for (size_t i = 0; i < m.rows; ++i) {
     for (size_t j = 0; j < m.cols; ++j) {
@@ -215,4 +215,30 @@ Mat_<T>& Mat_<T>::operator -=(const Mat_<Tm>& m) {
     }
   }
   return *this;
+}
+
+// resizes a matrix (allocate memory for new matrix) by bilinear interpolation.
+// fx and fy are scale factors. The size of the new matrix is:
+// rows. = lround(src.rows * fy); cols. = lround(src.cols * fx);
+template<typename T>
+Mat_<T> Resize(const Mat_<T>& src, double fx = 1, double fy = 1) {
+  Mat_<T> dst(lround(src.rows * fy), lround(src.cols * fx));
+  if (!(dst.data = new (std::nothrow) T[dst.rows * dst.cols]))
+    Err("Error in allocating memory while resizing a matrix.");
+  for (size_t i = 0; i < dst.rows; ++i) {
+    for (size_t j = 0; j < dst.cols; ++j) {
+      // dst(i, j) is supposed to be src(y, x)
+      float x = float(j) * src.cols / dst.cols;
+      float y = float(i) * src.rows / dst.rows;
+      // the fractional part of x and y
+      float x_fract = x - int(x);
+      float y_fract = y - int(y);
+      // bilinear interpolation
+      dst(i, j) = T((1 - x_fract) * (1 - y_fract) * src(int(y), int(x)) +
+                    (1 - x_fract) * y_fract * src(int(y) + 1, int(x)) +
+                    x_fract * (1 - y_fract) * src(int(y), int(x) + 1) +
+                    x_fract * y_fract * src(int(y) + 1, int(x) + 1));
+    }
+  }
+  return dst;
 }

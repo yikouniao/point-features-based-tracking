@@ -6,7 +6,7 @@
 
 const float harris_k = .04f;
 
-void ORB() {
+void ORBTemp() {
   //GetKeyPoints();
 }
 
@@ -57,6 +57,7 @@ static void GetKeyPoints(int nfeatures, int border_width, const std::vector<Rect
     KeyPointsRetainBest(keypoints, n_pts_per_level[level] * 2);
     
     /// octave in FAST???
+    /// Bilinear interpolation to resize image
   }
 
   mask.Release();
@@ -87,6 +88,8 @@ static void HarrisResponses(
         IxIy += Ix * Iy;
       }
     }
+    // M = sum([Ix^2, IxIy; IxIy, Iy^2])
+    // response = det(M) - k(trace(M))^2
     e.response = Ix_2 * Iy_2 - IxIy * IxIy - k * (Ix_2 + Iy_2) * (Ix_2 + Iy_2);
   }
 }

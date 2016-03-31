@@ -31,6 +31,7 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
         const unsigned char* v = &img(i, j);
         unsigned int tab = 255 - v[0];
 
+        // Check whether there exists 9 contiguous pixels in the circle
         unsigned char d = thres_tab[tab + v[circle[0]]] |
                           thres_tab[tab + v[circle[8]]];
 

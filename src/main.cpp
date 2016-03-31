@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
   //test();
 #else
   Mat a = ImgRead("Witch_Yoshino.bmp");
-  //ImgWrite("Witch_Yoshino.bmp", a);
   a.Release();
   //ORB();
 #endif
