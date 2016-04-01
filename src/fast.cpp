@@ -1,6 +1,8 @@
 #include "fast.h"
 #include <algorithm>
 
+using namespace std;
+
 void FastFeatureDetector::detect(
     const Mat& img, std::vector<KeyPoint>& keypoints, const Mat& mask) {
   FAST(img, keypoints, threshold, non_max_suppression);
@@ -9,19 +11,19 @@ void FastFeatureDetector::detect(
 
 void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression) {
-  threshold = std::min(std::max(threshold, 0), 255);
+  threshold = min(max(threshold, 0), 255);
   keypoints.clear();
-  std::vector<int> circle(25);
+  vector<int> circle(25);
   get_circle(img.step, circle);
-  std::vector<unsigned char> thres_tab(511);
+  vector<unsigned char> thres_tab(511);
   get_thres_tab(threshold, thres_tab);
-  std::vector<std::vector<int>> score_buf(3, std::vector<int>(img.cols, 0));
-  std::vector<std::vector<int>> position_buf(3, std::vector<int>(img.cols));
-  std::vector<size_t> ncorners(3, 0);
+  vector<vector<int>> score_buf(3, vector<int>(img.cols, 0));
+  vector<vector<int>> position_buf(3, vector<int>(img.cols));
+  vector<size_t> ncorners(3, 0);
 
   for (size_t i = 3; i < img.rows - 2; ++i) {
     int curr = i % 3, prev = (i - 1) % 3, pprev = (i - 2) % 3;
-    std::fill(score_buf[curr].begin(), score_buf[curr].end(), 0);
+    fill(score_buf[curr].begin(), score_buf[curr].end(), 0);
     ncorners[curr] = 0;
 
     // When i == img.rows - 2, We only need to check the keypoints

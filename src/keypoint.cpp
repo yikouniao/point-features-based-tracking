@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <functional>
 
+using namespace std;
+
 KeyPoint::KeyPoint(Pointf pt_, float diameter_, float angle_,
                    float response_, int octave_, int class_id_)
     : Pointf(pt_), diameter(diameter_), angle(angle_),
@@ -50,7 +52,7 @@ void KeyPointsFilterByImgBorder(std::vector<KeyPoint>& keypoints,
 
 void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points) {
   if (n_points > keypoints.size()) {
-    std::sort(keypoints.begin(), keypoints.end(), std::greater<KeyPoint>());
+    sort(keypoints.begin(), keypoints.end(), greater<KeyPoint>());
     keypoints.erase(keypoints.begin() + n_points, keypoints.end());
   }
 }

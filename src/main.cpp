@@ -5,14 +5,14 @@
 #include "file.h"
 #include "types.h"
 
+using namespace std;
+
 #define TEST 1
 
 int main(int argc, char** argv) {
 #if TEST
   //test();
 #else
-  Mat a = ImgRead("Witch_Yoshino.bmp");
-  a.Release();
-  //ORB();
+  //ORBTemp();
 #endif
 }

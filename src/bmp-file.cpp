@@ -1,6 +1,8 @@
 #include "bmp-file.h"
 #include "err.h"
 
+using namespace std;
+
 Mat BMP::Read(std::string f_name) {
   FILE* fp;
   BMPFileHeader* bmp_file_header = new BMPFileHeader();
@@ -20,7 +22,7 @@ Mat BMP::Read(std::string f_name) {
 
   Mat img(bmp_info_header->bi_height, bmp_info_header->bi_width);
 
-  if (!(img.data = new (std::nothrow) uchar[img.rows * img.cols]))
+  if (!(img.data = new (nothrow) uchar[img.rows * img.cols]))
     Err("Error in allocating memory for image data.");
 
   // reads image data
@@ -56,7 +58,7 @@ void BMP::Write(std::string f_name, const Mat& img) {
   FILE* fp;
   BMPFileHeader* bmp_file_header = new BMPFileHeader(img.rows * img.cols);
   BMPInfoHeader* bmp_info_header = new BMPInfoHeader(img.rows, img.cols);
-  RGBQuad* bmi_colors = new (std::nothrow) RGBQuad[256];
+  RGBQuad* bmi_colors = new (nothrow) RGBQuad[256];
   if (!bmi_colors)
     Err("Error in allocating memory for RGBQuad.");
 
