@@ -3,12 +3,25 @@
 #include "types.h"
 #include <vector>
 
-void ORBTemp();
-static void GetKeyPoints(int nfeatures, int border_width, const std::vector<Rect>& layer_info, float scale_factor);
-static void HarrisResponses(
-    std::vector<KeyPoint>& keypoints, const Mat& img,
-    const std::vector<Rect>& layer_info, size_t block_size, float k);
-static void GetPyramid(const Mat& img, std::vector<Mat>& pyramid,
-                       size_t n_levels, float fx, float fy);
+class ORBDescriptor {
+public:
+  // constructor
+  ORBDescriptor(
+    int nfeatures_ = 500, size_t nlevels_ = 8, float scale_factor_ = 1.2f,
+    int fast_threshold_ = 20, int border_width_ = 31, float harris_k_ = .04f);
 
-// class ORBDescriptor {
+  void Detect(const Mat& img) const;
+  void GetPyramid(const Mat& img, std::vector<Mat>& pyramid) const;
+  void GetKeyPoints(const std::vector<Mat>& pyramid,
+                    std::vector<KeyPoint>& keypoints) const;
+  void PtsPerLevel(std::vector<size_t>& npts_per_level) const;
+  void HarrisResponses(std::vector<KeyPoint>& keypoints, const Mat& img,
+                       size_t block_size = 7) const;
+
+  int nfeatures;
+  size_t nlevels;
+  float scale_factor;
+  int fast_threshold;
+  int border_width;
+  float harris_k;
+};

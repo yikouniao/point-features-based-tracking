@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void FastFeatureDetector::detect(
+void FastFeatureDetector::Detect(
     const Mat& img, std::vector<KeyPoint>& keypoints, const Mat& mask) {
   FAST(img, keypoints, threshold, non_max_suppression);
   KeyPointsMask(keypoints, mask);
@@ -11,8 +11,8 @@ void FastFeatureDetector::detect(
 
 void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
           bool non_max_suppression) {
-  threshold = min(max(threshold, 0), 255);
   keypoints.clear();
+  threshold = min(max(threshold, 0), 255);
   vector<int> circle(25);
   get_circle(img.step, circle);
   vector<unsigned char> thres_tab(511);

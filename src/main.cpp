@@ -11,8 +11,12 @@ using namespace std;
 
 int main(int argc, char** argv) {
 #if TEST
-  //test();
+  test();
 #else
-  //ORBTemp();
+  Mat img = ImgRead("../Homura.bmp");
+  ORBDescriptor* orbd = new ORBDescriptor();
+  orbd->Detect();
+  delete orbd;
+  img.Release();
 #endif
 }
