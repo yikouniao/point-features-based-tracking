@@ -22,7 +22,8 @@ void ORBDescriptor::Detect(const Mat& img) const {
   GetKeyPoints(pyramid, keypoints);
 }
 
-void ORBDescriptor::GetPyramid(const Mat& img, std::vector<Mat>& pyramid) const {
+void ORBDescriptor::GetPyramid(
+    const Mat& img, std::vector<Mat>& pyramid) const {
   // Clear the pyramid
   for (size_t i = 0; i < pyramid.size(); ++i) {
     pyramid[i].Release();
@@ -67,7 +68,8 @@ void ORBDescriptor::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
 
   // pts_in_1st_level*(1 + scale_factor +...+ scale_factor^(n-1)) = nfeatures
   float factor = 1 / scale_factor;
-  float ndesired_pts_per_level = nfeatures * (1 - factor) / (1 - (float)pow(double(factor), double(nlevels)));
+  float ndesired_pts_per_level = nfeatures * (1 - factor) /
+      (1 - (float)pow(double(factor), double(nlevels)));
 
   int sum_features = 0;
   for (size_t i = 0; i < nlevels - 1; i++) {
@@ -78,14 +80,13 @@ void ORBDescriptor::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
   npts_per_level[nlevels - 1] = max(nfeatures - sum_features, 0);
 }
 
-// calculates Harris responses for keypoints
 void ORBDescriptor::HarrisResponses(std::vector<KeyPoint>& keypoints,
                                     const Mat& img, size_t block_size) const {
   if (img.rows < block_size || img.cols < block_size)
     return;
 
   for (auto& e : keypoints) {
-    int Ix_2 = 0 /* Ix*Ix */, Iy_2 = 0 /* Iy*Iy */, IxIy = 0 /* Ix*Iy */;
+    int Ix_2 = 0 /* Ix^2 */, Iy_2 = 0 /* Iy^2 */, IxIy = 0 /* Ix*Iy */;
     int y0 = (int)e.y - block_size / 2;
     int x0 = (int)e.x - block_size / 2;
     for (size_t i = 0; i < block_size; ++i) {
@@ -107,6 +108,7 @@ void ORBDescriptor::HarrisResponses(std::vector<KeyPoint>& keypoints,
     }
     // M = sum([Ix^2, IxIy; IxIy, Iy^2])
     // response = det(M) - k(trace(M))^2
-    e.response = Ix_2 * Iy_2 - IxIy * IxIy - harris_k * (Ix_2 + Iy_2) * (Ix_2 + Iy_2);
+    e.response = Ix_2 * Iy_2 - IxIy * IxIy -
+                 harris_k * (Ix_2 + Iy_2) * (Ix_2 + Iy_2);
   }
 }

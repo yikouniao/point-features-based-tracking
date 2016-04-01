@@ -30,8 +30,11 @@ class Mat_ {
 
   // returns reference to a specified element
   T& operator ()(int i, int j);
+  T& operator ()(const Point& pt);
   // returns const reference to a specified element
   const T& operator ()(int i, int j) const;
+  const T& operator ()(const Point& pt) const;
+
   Mat_<T> operator ()(const Rect_<T>& roi) const;
   Mat_<T>& operator =(const Mat_& m); // assignment operator, shallow copy
 
@@ -132,8 +135,18 @@ T& Mat_<T>::operator ()(int i, int j) {
 }
 
 template<typename T>
+T& Mat_<T>::operator ()(const Point& pt) {
+  return data[pt.y * step + pt.x];
+}
+
+template<typename T>
 const T& Mat_<T>::operator ()(int i, int j) const {
   return ((const T*)data)[i * step + j];
+}
+
+template<typename T>
+const T& Mat_<T>::operator ()(const Point& pt) const {
+  return ((const T*)data)[pt.y * step + pt.x];
 }
 
 template<typename T>

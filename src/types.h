@@ -1,9 +1,9 @@
 #pragma once
 
-#include "mat.h"
 #include "point.h"
-#include "rect.h"
 #include "keypoint.h"
+#include "rect.h"
+#include "mat.h"
 
 using schar = signed char;
 using uchar = unsigned char;

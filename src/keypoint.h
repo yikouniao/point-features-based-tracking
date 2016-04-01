@@ -28,7 +28,15 @@ bool operator <(const KeyPoint& a, const KeyPoint& b);
 bool operator ==(const KeyPoint& a, const KeyPoint& b);
 bool operator !=(const KeyPoint& a, const KeyPoint& b);
 
+// discards points in the mask
 void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask);
+
+// discards points near the image border
 void KeyPointsFilterByImgBorder(std::vector<KeyPoint>& keypoints,
                                 const Mat& img, size_t border_width);
+
+// retains top n points by responses
 void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points);
+
+// marks keypoints with a white cross on the image
+void MarkKeyPoints(Mat& img, std::vector<KeyPoint>& keypoints);

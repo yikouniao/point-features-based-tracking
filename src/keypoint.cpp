@@ -56,3 +56,12 @@ void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points) {
     keypoints.erase(keypoints.begin() + n_points, keypoints.end());
   }
 }
+
+void MarkKeyPoints(Mat& img, std::vector<KeyPoint>& keypoints) {
+  for (size_t i = 0; i < keypoints.size(); ++i) {
+    int y = lroundf(keypoints[i].y);
+    int x = lroundf(keypoints[i].x);
+    img(y, x - 1) = img(y, x) = img(y, x + 1) =
+        img(y - 1, x) = img(y + 1, x) = 255;
+  }
+}
