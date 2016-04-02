@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <iterator>
 
 using namespace std;
 
@@ -14,9 +15,9 @@ ORBDescriptor::ORBDescriptor(
       fast_threshold(fast_threshold_), border_width(border_width_),
       harris_k(harris_k_) {}
 
-void ORBDescriptor::Detect(const Mat& img) const {
+void ORBDescriptor::Detect(
+    Mat& img, std::vector<KeyPoint>& keypoints) const {
   vector<Mat> pyramid;
-  vector<KeyPoint> keypoints;
 
   GetPyramid(img, pyramid);
   GetKeyPoints(pyramid, keypoints);
@@ -40,23 +41,36 @@ void ORBDescriptor::GetPyramid(
 void ORBDescriptor::GetKeyPoints(const std::vector<Mat>& pyramid,
                                  std::vector<KeyPoint>& keypoints) const {
   Mat mask;
+  keypoints.clear();
 
   vector<size_t> npts_per_level;
   PtsPerLevel(npts_per_level);
 
   for (size_t i = 0; i < nlevels; i++) {
+    vector<KeyPoint> curr_kpts;
+
     // FAST detectors
     FastFeatureDetector* fd = new FastFeatureDetector(fast_threshold, true);
-    fd->Detect(pyramid[i], keypoints, mask);
+    fd->Detect(pyramid[i], curr_kpts, mask);
     delete fd;
 
     // Remove keypoints very close to the border
-    KeyPointsFilterByImgBorder(keypoints, pyramid[i], border_width);
+    KeyPointsFilterByImgBorder(curr_kpts, pyramid[i], border_width);
 
     // Keep more points than necessary
-    KeyPointsRetainBest(keypoints, npts_per_level[i] * 2);
+    KeyPointsRetainBest(curr_kpts, npts_per_level[i] * 2);
+
+    HarrisResponses(curr_kpts, pyramid[i]);
+    KeyPointsRetainBest(curr_kpts, npts_per_level[i]);
+
+    for (auto& e : curr_kpts) {
+      e.octave = i;
+    }
+
+    // angle
+    // x and y in keypoints * scale^octave
     
-    /// octave in FAST keypoints, pending
+    keypoints.insert(keypoints.end(), curr_kpts.begin(), curr_kpts.end());
   }
 
   mask.Release();
@@ -80,8 +94,8 @@ void ORBDescriptor::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
   npts_per_level[nlevels - 1] = max(nfeatures - sum_features, 0);
 }
 
-void ORBDescriptor::HarrisResponses(std::vector<KeyPoint>& keypoints,
-                                    const Mat& img, size_t block_size) const {
+void ORBDescriptor::HarrisResponses(
+    std::vector<KeyPoint>& keypoints, const Mat& img, size_t block_size) const {
   if (img.rows < block_size || img.cols < block_size)
     return;
 

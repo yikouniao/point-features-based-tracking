@@ -11,7 +11,7 @@ class Mat_ {
   Mat_();
   Mat_(size_t rows_, size_t cols_, void* data_ = nullptr);
   Mat_(size_t rows_, size_t cols_, size_t step_, void* data_ = nullptr);
-  Mat_(const Mat_& m);
+  Mat_(const Mat_& m); // calls operator =
   Mat_(size_t rows_, size_t cols_, T init_v);
   template<size_t C>
   Mat_(T a[][C], size_t rows_);
@@ -36,7 +36,9 @@ class Mat_ {
   const T& operator ()(const Point& pt) const;
 
   Mat_<T> operator ()(const Rect_<T>& roi) const;
-  Mat_<T>& operator =(const Mat_& m); // assignment operator, shallow copy
+
+  // assignment operator, shallow copy, will not release this->data
+  Mat_<T>& operator =(const Mat_& m);
 
   Mat_<T>& operator -();
   template<typename Tm>
@@ -159,7 +161,6 @@ Mat_<T> Mat_<T>::operator ()(const Rect_<T>& roi) const {
 
 template<typename T>
 Mat_<T>& Mat_<T>::operator =(const Mat_& m) {
-  Release();
   rows = m.rows, cols = m.cols, step = m.step;
   data = (T*)m.data;
   return *this;
@@ -232,14 +233,14 @@ Mat_<T>& Mat_<T>::operator -=(const Mat_<Tm>& m) {
 
 // resizes a matrix (allocate memory for new matrix) by bilinear interpolation.
 // fx and fy are scale factors. The size of the new matrix is:
-// rows. = lround(src.rows * fy); cols. = lround(src.cols * fx);
+// rows. = lround(src.rows / fy); cols. = lround(src.cols / fx);
 // If fx or fy is less than 0, it's considered a wrong call and no memory
 // will be allocated. It returns src in this case.
 template<typename T>
 Mat_<T> Resize(const Mat_<T>& src, float fx = 1, float fy = 1) {
   if (fx < 0 || fy < 0)
     return src;
-  Mat_<T> dst(lround(src.rows * fy), lround(src.cols * fx));
+  Mat_<T> dst(lround(src.rows / fy), lround(src.cols / fx));
   if (!(dst.data = new (std::nothrow) T[dst.rows * dst.cols]))
     Err("Error in allocating memory while resizing a matrix.");
 

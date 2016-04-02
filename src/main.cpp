@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define TEST 1
+#define TEST 0
 
 int main(int argc, char** argv) {
 #if TEST
@@ -15,7 +15,9 @@ int main(int argc, char** argv) {
 #else
   Mat img = ImgRead("../Homura.bmp");
   ORBDescriptor* orbd = new ORBDescriptor();
-  orbd->Detect();
+  vector<KeyPoint> keypoints;
+  orbd->Detect(img, keypoints);
+  MarkKeyPoints(img, keypoints);
   delete orbd;
   img.Release();
 #endif
