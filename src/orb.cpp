@@ -129,3 +129,56 @@ void ORBDescriptor::HarrisResponses(
                  harris_k * (Ix_2 + Iy_2) * (Ix_2 + Iy_2);
   }
 }
+
+void ORBDescriptor::ICAngle(
+    const Mat& img, std::vector<KeyPoint>& keypoints) const {
+  // Compute the end of a row in a circular patch
+  int radius = patch_size / 2;
+  vector<int> jmax(radius + 1);
+
+  int i_thres_g = (int)floor(radius / sqrt(2.f) + 1);
+  int i_thres_l = (int)ceil(radius / sqrt(2.f));
+
+  // row i, column j
+  for (int i = 0; i <= i_thres_g; ++i)
+    jmax[i] = lround(sqrt((double)radius * radius - i * i));
+
+  // Compute the end of top and bottom rows according to edge columns in a patch
+  // to make sure the patch is symmetric
+  for (int i = radius, i0 = 0; i >= i_thres_l; --i) {
+    while (jmax[i0] == jmax[i0 + 1])
+      ++i0;
+    jmax[i] = i0++;
+  }
+  
+  // angle = arctan(m_01 / m_10)
+  for (auto& e : keypoints) {
+    int m_01 = 0, m_10 = 0;
+
+    // the center line, i = 0, m_01 = 0
+    for (int j = -radius; j <= radius; ++j)
+      m_10 += j * img(lround(e.y), lround(e.x) + j);
+
+    for (int i = 1, i_sum = 0; i <= radius; ++i) {
+      // Proceed over the two lines symmetrically
+      for (int j = -jmax[i]; j <= jmax[i]; ++j) {
+        int i_plus = img(lround(e.y) + i, lround(e.x) + j);
+        int i_minus = img(lround(e.y) - i, lround(e.x) + j);
+        m_10 += j * (i_plus + i_minus);
+        i_sum += (i_plus - i_minus);
+      }
+      // multiply sum by i here to reduce the number of multiplications
+      m_01 += i * i_sum;
+    }
+
+    e.angle = OfastAtan((float)m_01, (float)m_10);
+  }
+}
+
+#define PI 3.14159265359
+
+float ORBDescriptor::OfastAtan(float y, float x) const {
+  float theta = float(atan2(y, x) * 180 / PI); // -180 ~ 180
+  theta += theta < 0 ? 360 : 0; // 0 ~ 360
+  return theta;
+}

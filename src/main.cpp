@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define TEST 1
+#define TEST 0
 
 int main(int argc, char** argv) {
 #if TEST

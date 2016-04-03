@@ -29,10 +29,10 @@ class Mat_ {
   void Creat(size_t rows_, size_t cols_, T init_v);
 
   // returns reference to a specified element
-  T& operator ()(int i, int j);
+  T& operator ()(int row, int col);
   T& operator ()(const Point& pt);
   // returns const reference to a specified element
-  const T& operator ()(int i, int j) const;
+  const T& operator ()(int row, int col) const;
   const T& operator ()(const Point& pt) const;
 
   Mat_<T> operator ()(const Rect_<T>& roi) const;
@@ -132,8 +132,8 @@ void Mat_<T>::Creat(size_t rows_, size_t cols_, T init_v) {
 }
 
 template<typename T>
-T& Mat_<T>::operator ()(int i, int j) {
-  return data[i * step + j];
+T& Mat_<T>::operator ()(int row, int col) {
+  return data[row * step + col];
 }
 
 template<typename T>
@@ -142,8 +142,8 @@ T& Mat_<T>::operator ()(const Point& pt) {
 }
 
 template<typename T>
-const T& Mat_<T>::operator ()(int i, int j) const {
-  return ((const T*)data)[i * step + j];
+const T& Mat_<T>::operator ()(int row, int col) const {
+  return ((const T*)data)[row * step + col];
 }
 
 template<typename T>

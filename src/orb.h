@@ -29,6 +29,12 @@ public:
       std::vector<KeyPoint>& keypoints, const Mat& img,
       size_t block_size = 7) const;
 
+  // calculates oFAST feature orientation by intensity centroid
+  void ICAngle(const Mat& img, std::vector<KeyPoint>& keypoints) const;
+
+  // return in degree, range in 0 ~ 360
+  float OfastAtan(float y, float x) const;
+
   int nfeatures; // quantity of features
   size_t nlevels; // amount of levels
   float scale_factor; // factor for generating image pyramid
