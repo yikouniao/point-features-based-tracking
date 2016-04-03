@@ -4,9 +4,8 @@
 using namespace std;
 
 void FastFeatureDetector::Detect(
-    const Mat& img, std::vector<KeyPoint>& keypoints, const Mat& mask) {
+    const Mat& img, std::vector<KeyPoint>& keypoints) {
   FAST(img, keypoints, threshold, non_max_suppression);
-  KeyPointsMask(keypoints, mask);
 }
 
 void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,

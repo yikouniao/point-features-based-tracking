@@ -4,14 +4,14 @@
 
 using namespace std;
 
-KeyPoint::KeyPoint(Pointf pt_, float diameter_, float angle_,
-                   float response_, int octave_, int class_id_)
-    : Pointf(pt_), diameter(diameter_), angle(angle_),
-      response(response_), octave(octave_), class_id(class_id_) {}
+KeyPoint::KeyPoint(Pointf pt_, float size_, float angle_, float response_,
+                   int octave_, int class_id_)
+    : Pointf(pt_), size(size_), angle(angle_), response(response_),
+      octave(octave_), class_id(class_id_) {}
 
-KeyPoint::KeyPoint(float x_, float y_, float diameter_, float angle_,
+KeyPoint::KeyPoint(float x_, float y_, float size_, float angle_,
                    float response_, int octave_, int class_id_)
-    : Pointf(x_, y_), diameter(diameter_), angle(angle_),
+    : Pointf(x_, y_), size(size_), angle(angle_),
       response(response_), octave(octave_), class_id(class_id_) {}
 
 KeyPoint::~KeyPoint() {}

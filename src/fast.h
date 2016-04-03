@@ -9,8 +9,7 @@ class FastFeatureDetector {
   FastFeatureDetector(int threshold_, bool non_max_suppression_)
       : threshold(threshold_), non_max_suppression(non_max_suppression_) {}
 
-  void Detect(const Mat& img, std::vector<KeyPoint>& keypoints,
-              const Mat& mask);
+  void Detect(const Mat& img, std::vector<KeyPoint>& keypoints);
 
   int threshold;
   bool non_max_suppression;

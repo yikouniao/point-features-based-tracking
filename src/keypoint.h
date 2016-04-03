@@ -7,15 +7,15 @@
 class KeyPoint : public Pointf {
  public:
   // constructors
-  KeyPoint(Pointf pt_, float diameter_, float angle_ = -1,
+  KeyPoint(Pointf pt_, float size_, float angle_ = -1,
            float response_ = 0, int octave_ = -1, int class_id_ = -1);
-  KeyPoint(float x_, float y_, float diameter_, float angle_ = -1,
+  KeyPoint(float x_, float y_, float size_, float angle_ = -1,
            float response_ = 0, int octave_ = -1, int class_id_ = -1);
 
   // destructor
   ~KeyPoint();
 
-  float diameter; // keypoint diameter
+  float size; // diameter of the meaningful keypoint neighborhood
   float angle; // keypoint orientation (-1 if not applicable)
   float response; // keypoint detector response on the keypoint
   int octave; // octave in pyramid layers (-1 if not applicable)
