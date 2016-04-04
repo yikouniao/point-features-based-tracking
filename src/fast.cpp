@@ -3,18 +3,13 @@
 
 using namespace std;
 
-void FastFeatureDetector::Detect(
+void FastDetector::Detect(
     const Mat& img, std::vector<KeyPoint>& keypoints) {
-  FAST(img, keypoints, threshold, non_max_suppression);
-}
-
-void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
-          bool non_max_suppression) {
   keypoints.clear();
   threshold = min(max(threshold, 0), 255);
   vector<int> circle(25);
   get_circle(img.step, circle);
-  vector<unsigned char> thres_tab(511);
+  vector<uchar> thres_tab(511);
   get_thres_tab(threshold, thres_tab);
   vector<vector<int>> score_buf(3, vector<int>(img.cols, 0));
   vector<vector<int>> position_buf(3, vector<int>(img.cols));
@@ -29,12 +24,12 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
     // in previous row.
     if (i < img.rows - 3) {
       for (size_t j = 3; j < img.cols - 3; ++j) {
-        const unsigned char* v = &img(i, j);
-        unsigned int tab = 255 - v[0];
+        const uchar* v = &img(i, j);
+        uint tab = 255 - v[0];
 
         // Check whether there exists 9 contiguous pixels in the circle
-        unsigned char d = thres_tab[tab + v[circle[0]]] |
-                          thres_tab[tab + v[circle[8]]];
+        uchar d = thres_tab[tab + v[circle[0]]] |
+                  thres_tab[tab + v[circle[8]]];
 
         if (!d)
           continue;
@@ -52,12 +47,13 @@ void FAST(const Mat& img, std::vector<KeyPoint>& keypoints, int threshold,
         d &= thres_tab[tab + v[circle[7]]] | thres_tab[tab + v[circle[15]]];
 
         if (d) {
-          unsigned char threshold_flag{0};
+          uchar threshold_flag{0};
           for (size_t k = 0, count = 0; k < 25; ++k) {
-            if (v[circle[k]] - v[0] > threshold) {
+            uchar v_diff = v[circle[k]] - v[0];
+            if (v_diff > threshold) {
               threshold_flag == 2 ? ++count : count = 1;
               threshold_flag = 2;
-            } else if (v[circle[k]] - v[0] < -threshold) {
+            } else if (v_diff < -threshold) {
               threshold_flag == 1 ? ++count : count = 1;
               threshold_flag = 1;
             } else {
@@ -120,14 +116,14 @@ static void get_circle(int img_step, std::vector<int>& circle) {
 }
 
 static void get_thres_tab(int threshold,
-                          std::vector<unsigned char>& thres_tab) {
+                          std::vector<uchar>& thres_tab) {
   for (size_t i = 0; i < 511; ++i) {
     int vd = i - 255;
     thres_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
   }
 }
 
-static int get_score_buf(const unsigned char* v,
+static int get_score_buf(const uchar* v,
                          const std::vector<int>& circle) {
   int curr_score_buf{0};
   for (size_t i = 0; i < 16 ; ++i) {

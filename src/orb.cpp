@@ -49,7 +49,7 @@ void ORBDescriptor::GetKeyPoints(const std::vector<Mat>& pyramid,
     vector<KeyPoint> curr_kpts;
 
     // FAST detectors
-    FastFeatureDetector* fd = new FastFeatureDetector(fast_threshold, true);
+    FastDetector* fd = new FastDetector(fast_threshold, true);
     fd->Detect(pyramid[i], curr_kpts);
     delete fd;
 
@@ -59,17 +59,21 @@ void ORBDescriptor::GetKeyPoints(const std::vector<Mat>& pyramid,
     // Keep more points than necessary
     KeyPointsRetainBest(curr_kpts, npts_per_level[i] * 2);
 
+    // Remove points with lower response by Harris method
     HarrisResponses(curr_kpts, pyramid[i]);
     KeyPointsRetainBest(curr_kpts, npts_per_level[i]);
 
+    // Calculate octave and size of keypoints
     float scale = (float)pow(double(scale_factor), double(i));
     for (auto& e : curr_kpts) {
       e.octave = i;
       e.size = patch_size * scale;
     }
 
-    // angle
+    // Calculate angle of keypoints
+    ICAngle(pyramid[i], curr_kpts);
 
+    // Calculate coordinates of keypoints
     for (auto& e : curr_kpts) {
       e.x *= scale;
       e.y *= scale;
@@ -177,7 +181,7 @@ void ORBDescriptor::ICAngle(
 
 #define PI 3.14159265359
 
-float ORBDescriptor::OfastAtan(float y, float x) const {
+static float OfastAtan(float y, float x) {
   float theta = float(atan2(y, x) * 180 / PI); // -180 ~ 180
   theta += theta < 0 ? 360 : 0; // 0 ~ 360
   return theta;
