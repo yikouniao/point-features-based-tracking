@@ -3,6 +3,7 @@
 *.filters
 *.user
 /Debug
+/Release
 
 # exclude the images
 /complex building/*

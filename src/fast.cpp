@@ -8,9 +8,9 @@ void FastDetector::Detect(
   keypoints.clear();
   threshold = min(max(threshold, 0), 255);
   vector<int> circle(25);
-  get_circle(img.step, circle);
+  GetCircleOffsets(img.step, circle);
   vector<uchar> thres_tab(511);
-  get_thres_tab(threshold, thres_tab);
+  GetThresTab(threshold, thres_tab);
   vector<vector<int>> score_buf(3, vector<int>(img.cols, 0));
   vector<vector<int>> position_buf(3, vector<int>(img.cols));
   vector<size_t> ncorners(3, 0);
@@ -25,31 +25,30 @@ void FastDetector::Detect(
     if (i < img.rows - 3) {
       for (size_t j = 3; j < img.cols - 3; ++j) {
         const uchar* v = &img(i, j);
-        uint tab = 255 - v[0];
+        vector<uchar>::const_iterator tab = thres_tab.begin() + 255 - *v;
 
         // Check whether there exists 9 contiguous pixels in the circle
-        uchar d = thres_tab[tab + v[circle[0]]] |
-                  thres_tab[tab + v[circle[8]]];
+        uchar d = *(tab + v[circle[0]]) | *(tab + v[circle[8]]);
 
         if (!d)
           continue;
 
-        d &= thres_tab[tab + v[circle[2]]] | thres_tab[tab + v[circle[10]]];
-        d &= thres_tab[tab + v[circle[4]]] | thres_tab[tab + v[circle[12]]];
-        d &= thres_tab[tab + v[circle[6]]] | thres_tab[tab + v[circle[14]]];
+        d &= *(tab + v[circle[2]]) | *(tab + v[circle[10]]);
+        d &= *(tab + v[circle[4]]) | *(tab + v[circle[12]]);
+        d &= *(tab + v[circle[6]]) | *(tab + v[circle[14]]);
         
         if (!d)
           continue;
 
-        d &= thres_tab[tab + v[circle[1]]] | thres_tab[tab + v[circle[9]]];
-        d &= thres_tab[tab + v[circle[3]]] | thres_tab[tab + v[circle[11]]];
-        d &= thres_tab[tab + v[circle[5]]] | thres_tab[tab + v[circle[13]]];
-        d &= thres_tab[tab + v[circle[7]]] | thres_tab[tab + v[circle[15]]];
+        d &= *(tab + v[circle[1]]) | *(tab + v[circle[9]]);
+        d &= *(tab + v[circle[3]]) | *(tab + v[circle[11]]);
+        d &= *(tab + v[circle[5]]) | *(tab + v[circle[13]]);
+        d &= *(tab + v[circle[7]]) | *(tab + v[circle[15]]);
 
         if (d) {
           uchar threshold_flag{0};
           for (size_t k = 0, count = 0; k < 25; ++k) {
-            uchar v_diff = v[circle[k]] - v[0];
+            uchar v_diff = v[circle[k]] - *v;
             if (v_diff > threshold) {
               threshold_flag == 2 ? ++count : count = 1;
               threshold_flag = 2;
@@ -63,7 +62,7 @@ void FastDetector::Detect(
 
             // There's a keypoint, store the infos.
             if (count > 8) {
-              score_buf[curr][j] = get_score_buf(v, circle);
+              score_buf[curr][j] = GetFastScore(v, circle);
               position_buf[curr][ncorners[curr]] = j;
               ++ncorners[curr];
               break;
@@ -92,42 +91,51 @@ void FastDetector::Detect(
   }
 }
 
-static void get_circle(int img_step, std::vector<int>& circle) {
-  // The first point is three lines before the central point.
-  // Other points are arranged clockwise.
-  // Continue the circle in order not to miss continuous arcs
-  // which include circle[0].
-  circle[0] = circle[16] = -img_step * 3;
-  circle[1] = circle[17] = -img_step * 3 + 1;
-  circle[2] = circle[18] = -img_step * 2 + 2;
-  circle[3] = circle[19] = -img_step + 3;
+static void GetCircleOffsets(int img_step, std::vector<int>& circle) {
+  int t = -img_step * 3; // temp
+  circle[0] = circle[16] = t;
+  circle[1] = circle[17] = t + 1;
+  circle[15] = t - 1;
+
+  t += img_step; // -img_step * 2
+  circle[2] = circle[18] = t + 2;
+  circle[14] = t - 2;
+
+  t = -img_step; // -img_step
+  circle[3] = circle[19] = t + 3;
+  circle[13] = t - 3;
+
   circle[4] = circle[20] = 3;
-  circle[5] = circle[21] = img_step + 3;
-  circle[6] = circle[22] = img_step * 2 + 2;
-  circle[7] = circle[23] = img_step * 3 + 1;
-  circle[8] = circle[24] = img_step * 3;
-  circle[9] = img_step * 3 - 1;
-  circle[10] = img_step * 2 - 2;
-  circle[11] = img_step - 3;
   circle[12] = -3;
-  circle[13] = -img_step - 3;
-  circle[14] = -img_step * 2 - 2;
-  circle[15] = -img_step * 3 - 1;
+
+  t = img_step; // img_step
+  circle[5] = circle[21] = t + 3;
+  circle[11] = t - 3;
+
+  t += img_step; // img_step * 2
+
+  circle[6] = circle[22] = t + 2;
+  circle[10] = t - 2;
+
+  t += img_step; // img_step * 3
+  circle[7] = circle[23] = t + 1;
+  circle[8] = circle[24] = t;
+  circle[9] = t - 1;
 }
 
-static void get_thres_tab(int threshold,
-                          std::vector<uchar>& thres_tab) {
+static void GetThresTab(
+    int threshold, std::vector<uchar>& thres_tab) {
   for (size_t i = 0; i < 511; ++i) {
     int vd = i - 255;
     thres_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
   }
 }
 
-static int get_score_buf(const uchar* v,
-                         const std::vector<int>& circle) {
+static int GetFastScore(
+    const uchar* v, const std::vector<int>& circle) {
   int curr_score_buf{0};
   for (size_t i = 0; i < 16 ; ++i) {
-    curr_score_buf += abs(v[circle[i]] - v[0]);
+    curr_score_buf += abs(v[circle[i]] - *v);
   }
   return curr_score_buf;
 }
