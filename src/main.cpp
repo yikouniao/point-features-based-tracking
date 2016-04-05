@@ -17,11 +17,11 @@ int main(int argc, char** argv) {
   test(f_name);
 #else
   Mat img = ImgRead(f_name);
-  ORBDescriptor* orbd = new ORBDescriptor();
+  OrbMethod* orbd = new OrbMethod();
   vector<KeyPoint> keypoints;
-  orbd->Detect(img, keypoints);
+  orbd->OrbImpl(img, keypoints);
   //MarkKeyPoints(img, keypoints);
-  //ImgWrite("../Homura1.bmp", img);
+  //ImgWrite("../result.bmp", img);
   delete orbd;
   img.Release();
 #endif

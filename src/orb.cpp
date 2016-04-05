@@ -8,14 +8,14 @@
 
 using namespace std;
 
-ORBDescriptor::ORBDescriptor(
+OrbMethod::OrbMethod(
     int nfeatures_, size_t nlevels_, float scale_factor_, int fast_threshold_,
     int border_width_, float harris_k_, int patch_size_)
     : nfeatures(nfeatures_), nlevels(nlevels_), scale_factor(scale_factor_),
       fast_threshold(fast_threshold_), border_width(border_width_),
       harris_k(harris_k_), patch_size(patch_size_) {}
 
-void ORBDescriptor::Detect(
+void OrbMethod::OrbImpl(
     Mat& img, std::vector<KeyPoint>& keypoints) const {
   vector<Mat> pyramid;
 
@@ -23,7 +23,7 @@ void ORBDescriptor::Detect(
   GetKeyPoints(pyramid, keypoints);
 }
 
-void ORBDescriptor::GetPyramid(
+void OrbMethod::GetPyramid(
     const Mat& img, std::vector<Mat>& pyramid) const {
   // Clear the pyramid
   for (size_t i = 0; i < pyramid.size(); ++i) {
@@ -38,7 +38,7 @@ void ORBDescriptor::GetPyramid(
   }
 }
 
-void ORBDescriptor::GetKeyPoints(const std::vector<Mat>& pyramid,
+void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
                                  std::vector<KeyPoint>& keypoints) const {
   keypoints.clear();
 
@@ -83,7 +83,7 @@ void ORBDescriptor::GetKeyPoints(const std::vector<Mat>& pyramid,
   }
 }
 
-void ORBDescriptor::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
+void OrbMethod::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
   npts_per_level.clear();
   npts_per_level.resize(nlevels);
 
@@ -101,7 +101,7 @@ void ORBDescriptor::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
   npts_per_level[nlevels - 1] = max(nfeatures - sum_features, 0);
 }
 
-void ORBDescriptor::HarrisResponses(
+void OrbMethod::HarrisResponses(
     std::vector<KeyPoint>& keypoints, const Mat& img, size_t block_size) const {
   if (img.rows < block_size || img.cols < block_size)
     return;
@@ -134,7 +134,7 @@ void ORBDescriptor::HarrisResponses(
   }
 }
 
-void ORBDescriptor::ICAngle(
+void OrbMethod::ICAngle(
     const Mat& img, std::vector<KeyPoint>& keypoints) const {
   // Compute the end of a row in a circular patch
   int radius = patch_size / 2;

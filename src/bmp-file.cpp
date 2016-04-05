@@ -22,8 +22,7 @@ Mat BMP::Read(std::string f_name) {
 
   Mat img(bmp_info_header->bi_height, bmp_info_header->bi_width);
 
-  if (!(img.data = new (nothrow) uchar[img.rows * img.cols]))
-    Err("Error in allocating memory for image data.");
+  img.Allocate();
 
   // reads image data
   if (bmp_info_header->bi_bit_count == 8) {

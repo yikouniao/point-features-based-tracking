@@ -11,8 +11,8 @@ class Mat_ {
   Mat_();
   Mat_(size_t rows_, size_t cols_, void* data_ = nullptr);
   Mat_(size_t rows_, size_t cols_, size_t step_, void* data_ = nullptr);
+  Mat_(size_t rows_, size_t cols_, size_t step_, T init_v);
   Mat_(const Mat_& m); // calls operator =
-  Mat_(size_t rows_, size_t cols_, T init_v);
   template<size_t C>
   Mat_(T a[][C], size_t rows_);
   // destructor
@@ -20,13 +20,22 @@ class Mat_ {
   // if necessary.
   ~Mat_();
 
+  // allocates memory
+  void Allocate();
+  void Allocate(T init_v);
+  void Allocate(size_t rows_, size_t cols_);
+  void Allocate(size_t rows_, size_t cols_, T init_v);
+
+  // releases old memory and re-allocates new one
+  void Reallocate();
+  void Reallocate(T init_v);
+  void Reallocate(size_t rows_, size_t cols_);
+  void Reallocate(size_t rows_, size_t cols_, T init_v);
+  void Reallocate(const Mat_<T>& m);
+
   void Release(); // deallocates memory and reset all elements in the class
 
   bool Empty() const; // returns true if data == nullptr
-
-  // releases old memory, allocate new memory and assign the new contents
-  void Clone(const Mat_& m);
-  void Creat(size_t rows_, size_t cols_, T init_v);
 
   // returns reference to a specified element
   T& operator ()(int row, int col);
@@ -71,23 +80,21 @@ Mat_<T>::Mat_(size_t rows_, size_t cols_, size_t step_, void* data_)
     : rows(rows_), cols(cols_), step(step_), data((T*)data_) {}
 
 template<typename T>
-Mat_<T>::Mat_(const Mat_& m) {
-  *this = m;
+Mat_<T>::Mat_(size_t rows_, size_t cols_, size_t step_, T init_v)
+    : rows(rows_), cols(cols_), step(step_) {
+  Allocate(init_v);
 }
 
 template<typename T>
-Mat_<T>::Mat_(size_t rows_, size_t cols_, T init_v)
-    : rows(rows_), cols(cols_), step(cols_) {
-  if (!(data = new (std::nothrow) T[rows * cols]{init_v}))
-    Err("Error in allocating memory for Mat_<T>::data in the constructor.");
+Mat_<T>::Mat_(const Mat_& m) {
+  *this = m;
 }
 
 template<typename T>
 template<size_t C>
 Mat_<T>::Mat_(T a[][C], size_t rows_) {
   rows = rows_; cols = C; step = cols;
-  if (!(data = new (std::nothrow) T[rows * cols]))
-    Err("Error in allocating memory for Mat_<T>::data in the constructor.");
+  Allocate();
   for (size_t i = 0; i < rows; ++i) {
     for (size_t j = 0; j < cols; ++j) {
       (*this)(i, j) = a[i][j];
@@ -99,6 +106,68 @@ template<typename T>
 Mat_<T>::~Mat_() {}
 
 template<typename T>
+void Mat_<T>::Allocate() {
+  if (!(data = new (std::nothrow) T[rows * cols]))
+    Err("Error in allocating memory for Mat_<T>::data.");
+  if (step != cols)
+    step = cols;
+}
+
+template<typename T>
+void Mat_<T>::Allocate(T init_v) {
+  if (!(data = new (std::nothrow) T[rows * cols]{init_v}))
+    Err("Error in allocating memory for Mat_<T>::data.");
+  if (step != cols)
+    step = cols;
+}
+
+template<typename T>
+void Mat_<T>::Allocate(size_t rows_, size_t cols_) {
+  rows = rows_; cols = cols_;
+  Allocate();
+}
+
+template<typename T>
+void Mat_<T>::Allocate(size_t rows_, size_t cols_, T init_v) {
+  rows = rows_; cols = cols_;
+  Allocate(init_v);
+}
+
+template<typename T>
+void Mat_<T>::Reallocate() {
+  delete[] data;
+  Allocate();
+}
+
+template<typename T>
+void Mat_<T>::Reallocate(T init_v) {
+  delete[] data;
+  Allocate(init_v);
+}
+
+template<typename T>
+void Mat_<T>::Reallocate(size_t rows_, size_t cols_) {
+  rows = rows_; cols = cols_;
+  Reallocate();
+}
+
+template<typename T>
+void Mat_<T>::Reallocate(size_t rows_, size_t cols_, T init_v) {
+  rows = rows_; cols = cols_;
+  Reallocate(init_v);
+}
+
+template<typename T>
+void Mat_<T>::Reallocate(const Mat_<T>& m) {
+  Reallocate(m.rows, m.cols);
+  for (size_t i = 0; i < rows; ++i) {
+    for (size_t j = 0; j < cols; ++j) {
+      (*this)(i, j) = m(i, j);
+    }
+  }
+}
+
+template<typename T>
 void Mat_<T>::Release() {
   delete[] data;
   data = nullptr;
@@ -108,27 +177,6 @@ void Mat_<T>::Release() {
 template<typename T>
 bool Mat_<T>::Empty() const {
   return data == nullptr;
-}
-
-template<typename T>
-void Mat_<T>::Clone(const Mat_<T>& m) {
-  Release();
-  rows = m.rows, cols = m.cols, step = m.cols;
-  if (!(data = new (std::nothrow) T[rows * cols]))
-    Err("Error in allocating memory for Mat_<T>::data while cloning.");
-  for (size_t i = 0; i < rows; ++i) {
-    for (size_t j = 0; j < cols; ++j) {
-      (*this)(i, j) = m(i, j);
-    }
-  }
-}
-
-template<typename T>
-void Mat_<T>::Creat(size_t rows_, size_t cols_, T init_v) {
-  Release();
-  rows = rows_, cols = cols_, step = cols_;
-  if (!(data = new (std::nothrow) T[rows * cols]{init_v}))
-    Err("Error in allocating memory for Mat_<T>::data in the constructor.");
 }
 
 template<typename T>
@@ -180,9 +228,7 @@ Mat_<T1>& operator +(const Mat_<T1>& m1, const Mat_<T2>& m2) {
   Mat_<T1> m;
   if (m1.rows != m2.rows || m1.cols != m2.cols)
     return m;
-  m.rows = m1.rows; m.cols = m.step = m1.cols;
-  if (!(data = new (std::nothrow) T1[m.rows * m.cols]))
-    Err("Error in allocating memory in the overload of operator +.");
+  m.Allocate(m1.rows, m1.cols);
   for (size_t i = 0; i < m.rows; ++i) {
     for (size_t j = 0; j < m.cols; ++j) {
       m(i, j) = T1(m1(i, j) + m2(i, j));
@@ -208,9 +254,7 @@ Mat_<T>& operator -(const Mat_<T>& m1, const Mat_<T>& m2) {
   Mat_<T> m;
   if (m1.rows != m2.rows || m1.cols != m2.cols)
     return m;
-  m.rows = m1.rows; m.cols = m.step = m1.cols;
-  if (!(data = new (std::nothrow) T[m.rows * m.cols]))
-    Err("Error in allocating memory in the overload of operator +.");
+  m.Allocate(m1.rows, m1.cols);
   for (size_t i = 0; i < m.rows; ++i) {
     for (size_t j = 0; j < m.cols; ++j) {
       m(i, j) = m1(i, j) - m2(i, j);
@@ -241,8 +285,7 @@ Mat_<T> Resize(const Mat_<T>& src, float fx = 1, float fy = 1) {
   if (fx < 0 || fy < 0)
     return src;
   Mat_<T> dst(lround(src.rows / fy), lround(src.cols / fx));
-  if (!(dst.data = new (std::nothrow) T[dst.rows * dst.cols]))
-    Err("Error in allocating memory while resizing a matrix.");
+  dst.Allocate();
 
   for (size_t i = 0; i < dst.rows; ++i) {
     for (size_t j = 0; j < dst.cols; ++j) {

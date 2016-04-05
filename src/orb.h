@@ -3,16 +3,16 @@
 #include "types.h"
 #include <vector>
 
-class ORBDescriptor {
+class OrbMethod {
 public:
   // constructor
-  ORBDescriptor(
-    int nfeatures_ = 500, size_t nlevels_ = 8, float scale_factor_ = 1.2f,
-    int fast_threshold_ = 20, int border_width_ = 31, float harris_k_ = .04f,
-    int patch_size_ = 31);
+  OrbMethod(
+      int nfeatures_ = 500, size_t nlevels_ = 8, float scale_factor_ = 1.2f,
+      int fast_threshold_ = 20, int border_width_ = 31, float harris_k_ = .04f,
+      int patch_size_ = 31);
 
   // ORB
-  void Detect(Mat& img, std::vector<KeyPoint>& keypoints) const;
+  void OrbImpl(Mat& img, std::vector<KeyPoint>& keypoints) const;
 
   // calculates pyramid
   void GetPyramid(const Mat& img, std::vector<Mat>& pyramid) const;
