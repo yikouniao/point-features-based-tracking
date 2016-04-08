@@ -4,6 +4,7 @@
 #include "err.h"
 #include "file.h"
 #include "types.h"
+#include "blur.h"
 
 using namespace std;
 

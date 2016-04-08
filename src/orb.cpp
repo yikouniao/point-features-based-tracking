@@ -1,6 +1,7 @@
 #include "orb.h"
 #include "fast.h"
 #include "file.h"
+#include "blur.h"
 #include <iostream>
 #include <cmath>
 #include <algorithm>
@@ -21,6 +22,7 @@ void OrbMethod::OrbImpl(
 
   GetPyramid(img, pyramid);
   GetKeyPoints(pyramid, keypoints);
+  GaussianBlur(pyramid, pyramid, 7, 7, 2, 2);
 }
 
 void OrbMethod::GetPyramid(

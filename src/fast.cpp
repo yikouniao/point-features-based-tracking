@@ -7,13 +7,13 @@ void FastDetector::Detect(
     const Mat& img, std::vector<KeyPoint>& keypoints) {
   keypoints.clear();
   threshold = min(max(threshold, 0), 255);
-  vector<int> circle(25);
+  array<int, 25> circle;
   GetCircleOffsets(img.step, circle);
-  vector<uchar> thres_tab(511);
+  array<uchar, 511> thres_tab;
   GetThresTab(threshold, thres_tab);
   vector<vector<int>> score_buf(3, vector<int>(img.cols, 0));
   vector<vector<int>> position_buf(3, vector<int>(img.cols));
-  vector<size_t> ncorners(3, 0);
+  array<size_t, 3> ncorners{0};
 
   for (size_t i = 3; i < img.rows - 2; ++i) {
     int curr = i % 3, prev = (i - 1) % 3, pprev = (i - 2) % 3;
@@ -25,7 +25,7 @@ void FastDetector::Detect(
     if (i < img.rows - 3) {
       for (size_t j = 3; j < img.cols - 3; ++j) {
         const uchar* v = &img(i, j);
-        vector<uchar>::const_iterator tab = thres_tab.begin() + 255 - *v;
+        array<uchar, 511>::const_iterator tab = thres_tab.begin() + 255 - *v;
 
         // Check whether there exists 9 contiguous pixels in the circle
         uchar d = *(tab + v[circle[0]]) | *(tab + v[circle[8]]);
@@ -91,7 +91,8 @@ void FastDetector::Detect(
   }
 }
 
-static void GetCircleOffsets(int img_step, std::vector<int>& circle) {
+void FastDetector::GetCircleOffsets(
+    int img_step, std::array<int, 25>& circle) const {
   int t = -img_step * 3; // temp
   circle[0] = circle[16] = t;
   circle[1] = circle[17] = t + 1;
@@ -123,16 +124,16 @@ static void GetCircleOffsets(int img_step, std::vector<int>& circle) {
   circle[9] = t - 1;
 }
 
-static void GetThresTab(
-    int threshold, std::vector<uchar>& thres_tab) {
+void FastDetector::GetThresTab(
+    int threshold, std::array<uchar, 511>& thres_tab) const {
   for (size_t i = 0; i < 511; ++i) {
     int vd = i - 255;
     thres_tab[i] = vd < -threshold ? 1 : vd > threshold ? 2 : 0;
   }
 }
 
-static int GetFastScore(
-    const uchar* v, const std::vector<int>& circle) {
+int FastDetector::GetFastScore(
+    const uchar* v, const std::array<int, 25>& circle) const {
   int curr_score_buf{0};
   for (size_t i = 0; i < 16 ; ++i) {
     curr_score_buf += abs(v[circle[i]] - *v);
