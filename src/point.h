@@ -21,9 +21,9 @@ template<typename T> class Point_ {
   double Norm() const;
 
   // operators overloading
-  Point_<T>& operator =(const Point_& pt);
-  Point_<T>& operator +=(const Point_& pt);
-  Point_<T>& operator -=(const Point_& pt);
+  Point_<T>& operator =(const Point_<T>& pt);
+  Point_<T>& operator +=(const Point_<T>& pt);
+  Point_<T>& operator -=(const Point_<T>& pt);
   template<typename Ta>
   Point_<T>& operator *=(const Ta a);
   template<typename Ta>

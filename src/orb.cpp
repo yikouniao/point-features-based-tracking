@@ -198,19 +198,19 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
     const Point* pattern = (const Point*)bit_pattern_31_;
     const KeyPoint& kp = keypoints[i];
     int octave = kp.octave;
-    Mat img = pyramid[octave];
+    const Mat& img = pyramid[octave];
     float angle = float(DEG2RAD(kp.angle));
     float cos_a = cos(angle), sin_a = sin(angle);
-    Point center{int(kp.x * scale[octave]), int(kp.y * scale[octave])};
+    const Point center{int(kp.x * scale[octave]), int(kp.y * scale[octave])};
 
 #define GET_VALUE(k) \
     (img(center + Point(lround(pattern[k].x * cos_a - pattern[k].y * sin_a), \
                         lround(pattern[k].x * sin_a + pattern[k].y * cos_a))))
 
     for (size_t j = 0; j < 32; ++j, pattern += 16) {
-      uchar v;
+      uchar v{0};
       for (size_t k = 0; k < 16; k += 2) {
-        v = (GET_VALUE(k) < GET_VALUE(k + 1)) << (k >> 1);
+        v |= (GET_VALUE(k) < GET_VALUE(k + 1)) << (k >> 1);
       }
       descriptors[i][j] = v;
     }
