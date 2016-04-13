@@ -11,3 +11,13 @@ using ushort = unsigned short;
 using uint = unsigned int;
 using int64 = __int64;
 using uint64 = unsigned __int64;
+
+#ifndef PI
+#define PI 3.1415926535897932384626433832795
+#endif
+#ifndef RAD2DEG
+#define RAD2DEG(x) (x * 180. / PI)
+#endif
+#ifndef DEG2RAD
+#define DEG2RAD(x) (x * PI / 180.)
+#endif

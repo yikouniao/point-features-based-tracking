@@ -2,8 +2,6 @@
 #include "fast.h"
 #include "file.h"
 #include "blur.h"
-#include <iostream>
-#include <cmath>
 #include <algorithm>
 #include <iterator>
 
@@ -16,13 +14,13 @@ OrbMethod::OrbMethod(
       fast_threshold(fast_threshold_), border_width(border_width_),
       harris_k(harris_k_), patch_size(patch_size_) {}
 
-void OrbMethod::OrbImpl(
-    Mat& img, std::vector<KeyPoint>& keypoints) const {
+void OrbMethod::OrbImpl(Mat& img, std::vector<KeyPoint>& keypoints,
+                        OrbDescriptors& descriptors) const {
   vector<Mat> pyramid;
-
   GetPyramid(img, pyramid);
   GetKeyPoints(pyramid, keypoints);
   GaussianBlur(pyramid, pyramid, 7, 7, 2, 2);
+  GetDescriptors(pyramid, keypoints, descriptors);
 }
 
 void OrbMethod::GetPyramid(
@@ -41,11 +39,12 @@ void OrbMethod::GetPyramid(
 }
 
 void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
-                                 std::vector<KeyPoint>& keypoints) const {
+                             std::vector<KeyPoint>& keypoints) const {
   keypoints.clear();
 
   vector<size_t> npts_per_level;
   PtsPerLevel(npts_per_level);
+  float scale{1.f};
 
   for (size_t i = 0; i < nlevels; i++) {
     vector<KeyPoint> curr_kpts;
@@ -66,7 +65,8 @@ void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
     KeyPointsRetainBest(curr_kpts, npts_per_level[i]);
 
     // Calculate octave and size of keypoints
-    float scale = (float)pow(double(scale_factor), double(i));
+    if (i)
+      scale *= scale_factor;
     for (auto& e : curr_kpts) {
       e.octave = i;
       e.size = patch_size * scale;
@@ -181,10 +181,44 @@ void OrbMethod::ICAngle(
   }
 }
 
-#define PI 3.14159265359
+void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
+                               const std::vector<KeyPoint>& keypoints,
+                               OrbDescriptors& descriptors) const {
+  descriptors.clear();
+  descriptors.resize(keypoints.size());
+
+  vector<float> scale(pyramid.size());
+  float scale_factor_ = 1 / scale_factor;
+  scale[0] = 1;
+  for (size_t i = 1; i < scale.size(); ++i) {
+    scale[i] = scale[i - 1] * scale_factor_;
+  }
+
+  for (size_t i = 0; i < keypoints.size(); ++i) {
+    const Point* pattern = (const Point*)bit_pattern_31_;
+    const KeyPoint& kp = keypoints[i];
+    int octave = kp.octave;
+    Mat img = pyramid[octave];
+    float angle = float(DEG2RAD(kp.angle));
+    float cos_a = cos(angle), sin_a = sin(angle);
+    Point center{int(kp.x * scale[octave]), int(kp.y * scale[octave])};
+
+#define GET_VALUE(k) \
+    (img(center + Point(lround(pattern[k].x * cos_a - pattern[k].y * sin_a), \
+                        lround(pattern[k].x * sin_a + pattern[k].y * cos_a))))
+
+    for (size_t j = 0; j < 32; ++j, pattern += 16) {
+      uchar v;
+      for (size_t k = 0; k < 16; k += 2) {
+        v = (GET_VALUE(k) < GET_VALUE(k + 1)) << (k >> 1);
+      }
+      descriptors[i][j] = v;
+    }
+  }
+}
 
 static float OfastAtan(float y, float x) {
-  float theta = float(atan2(y, x) * 180 / PI); // -180 ~ 180
+  float theta = float(RAD2DEG(atan2(y, x))); // -180 ~ 180
   theta += theta < 0 ? 360 : 0; // 0 ~ 360
   return theta;
 }

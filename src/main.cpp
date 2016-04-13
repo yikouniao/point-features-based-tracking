@@ -8,19 +8,20 @@
 
 using namespace std;
 
-#define TEST 0
+#define TEST 1
 
-string f_name = "../simu0075.bmp";
-//string f_name = "../Homura.bmp";
+string f_name0 = "complex building/simu0014.bmp";
+string f_name1 = "complex building/simu0076.bmp";
 
 int main(int argc, char** argv) {
 #if TEST
-  test(f_name);
+  test(f_name0, f_name1);
 #else
-  Mat img = ImgRead(f_name);
+  Mat img = ImgRead(f_name0);
   OrbMethod* orbd = new OrbMethod();
   vector<KeyPoint> keypoints;
-  orbd->OrbImpl(img, keypoints);
+  OrbDescriptors descriptors;
+  orbd->OrbImpl(img, keypoints, descriptors);
   //MarkKeyPoints(img, keypoints);
   //ImgWrite("../result.bmp", img);
   delete orbd;
