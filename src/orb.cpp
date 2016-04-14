@@ -21,18 +21,21 @@ void OrbMethod::OrbImpl(Mat& img, std::vector<KeyPoint>& keypoints,
   GetKeyPoints(pyramid, keypoints);
   GaussianBlur(pyramid, pyramid, 7, 7, 2, 2);
   GetDescriptors(pyramid, keypoints, descriptors);
+  for (auto& e : pyramid)
+    e.Release();
 }
 
 void OrbMethod::GetPyramid(
     const Mat& img, std::vector<Mat>& pyramid) const {
   // Clear the pyramid
-  for (size_t i = 0; i < pyramid.size(); ++i) {
-    pyramid[i].Release();
-  }
+  for (auto& e : pyramid)
+    e.Release();
   pyramid.clear();
 
   // Construct the pyramid
-  pyramid.push_back(img);
+  Mat img_;
+  img_.Allocate(img);
+  pyramid.push_back(img_);
   for (size_t i = 1; i < nlevels; ++i) {
     pyramid.push_back(Resize(pyramid[i - 1], scale_factor, scale_factor));
   }
@@ -108,6 +111,9 @@ void OrbMethod::HarrisResponses(
   if (img.rows < block_size || img.cols < block_size)
     return;
 
+  float scale = 1.f / ((1 << 2) * block_size * 255.f);
+  float scale_sq_sq = scale * scale * scale * scale;
+
   for (auto& e : keypoints) {
     int Ix_2 = 0 /* Ix^2 */, Iy_2 = 0 /* Iy^2 */, IxIy = 0 /* Ix*Iy */;
     int y0 = (int)e.y - block_size / 2;
@@ -131,8 +137,8 @@ void OrbMethod::HarrisResponses(
     }
     // M = sum([Ix^2, IxIy; IxIy, Iy^2])
     // response = det(M) - k(trace(M))^2
-    e.response = Ix_2 * Iy_2 - IxIy * IxIy -
-                 harris_k * (Ix_2 + Iy_2) * (Ix_2 + Iy_2);
+    e.response = (float(Ix_2) * Iy_2 - float(IxIy) * IxIy -
+        harris_k * (float(Ix_2) + Iy_2) * (float(Ix_2) + Iy_2)) * scale_sq_sq;
   }
 }
 

@@ -58,13 +58,6 @@ void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points) {
 }
 
 void MarkKeyPoints(
-    std::vector<Mat>& img_pyramid, const std::vector<KeyPoint>& keypoints) {
-  for (size_t i = 0; i < img_pyramid.size(); ++i) {
-    MarkKeyPoints(img_pyramid[i], keypoints, i);
-  }
-}
-
-void MarkKeyPoints(
     Mat& img, const std::vector<KeyPoint>& keypoints, int octave) {
   for (const auto& e : keypoints) {
     if (octave == -1 || octave == e.octave) {

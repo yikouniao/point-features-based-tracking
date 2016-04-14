@@ -38,10 +38,6 @@ void KeyPointsFilterByImgBorder(
 // retains top n points by responses
 void KeyPointsRetainBest(std::vector<KeyPoint>& keypoints, size_t n_points);
 
-// marks keypoints with a white cross on an image pyramid
-void MarkKeyPoints(
-    std::vector<Mat>& img_pyramid, const std::vector<KeyPoint>& keypoints);
-
 // marks keypoints with a white cross on an image
 // If octave = -1, mark all keypoints. Else mark specific keypoints.
 void MarkKeyPoints(

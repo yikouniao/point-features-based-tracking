@@ -25,6 +25,7 @@ class Mat_ {
   void Allocate(T init_v);
   void Allocate(size_t rows_, size_t cols_);
   void Allocate(size_t rows_, size_t cols_, T init_v);
+  void Allocate(const Mat_<T>& m);
 
   // releases old memory and re-allocates new one
   void Reallocate();
@@ -131,6 +132,16 @@ template<typename T>
 void Mat_<T>::Allocate(size_t rows_, size_t cols_, T init_v) {
   rows = rows_; cols = cols_;
   Allocate(init_v);
+}
+
+template<typename T>
+void Mat_<T>::Allocate(const Mat_<T>& m) {
+  Allocate(m.rows, m.cols);
+  for (size_t i = 0; i < rows; ++i) {
+    for (size_t j = 0; j < cols; ++j) {
+      (*this)(i, j) = m(i, j);
+    }
+  }
 }
 
 template<typename T>
@@ -284,6 +295,7 @@ template<typename T>
 Mat_<T> Resize(const Mat_<T>& src, float fx = 1, float fy = 1) {
   if (fx < 0 || fy < 0)
     return src;
+
   Mat_<T> dst(lround(src.rows / fy), lround(src.cols / fx));
   dst.Allocate();
 

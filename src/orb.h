@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include <vector>
+#include <array>
 
 using OrbDescriptors = std::vector<std::array<uchar, 32>>;
 
