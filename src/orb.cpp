@@ -67,6 +67,10 @@ void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
     HarrisResponses(curr_kpts, pyramid[i]);
     KeyPointsRetainBest(curr_kpts, npts_per_level[i]);
 
+    if (i==0){
+    curr_kpts.push_back(KeyPoint{ Pointf{115.f,214.f}, 31,-1,0,0,-1});
+    HarrisResponses(curr_kpts, pyramid[i]);}
+
     // Calculate octave and size of keypoints
     if (i)
       scale *= scale_factor;

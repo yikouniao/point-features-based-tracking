@@ -62,16 +62,23 @@ static void GetGaussianKernel(
   }
 }
 
+#define NOT_EDGE_X 0
+#define LEFT_EDGE_X 1
+#define RIGHT_EDGE_X 2
+#define NOT_EDGE_Y 3
+#define TOP_EDGE_Y 4
+#define BOTTOM_EDGE_Y 5
+
 static void GaussianBlurImpl(const Mat& src, Mat& dst,
     const std::vector<float>& kernelx, const std::vector<float>& kernely) {
-  Mat dst_(src.rows, src.cols); // interval result for X-axis blurring
+  Matf dst_(src.rows, src.cols); // interval result for X-axis blurring
   dst_.Allocate();
 
   // [drange_l, drange_g) is the range of data inside the image edge in X-axis
   size_t drange_l = kernelx.size() / 2;
   size_t drange_g = dst_.cols - drange_l;
   std::vector<int> offsets(kernelx.size());
-  GetAddrOffsets(dst_, Point(), offsets, NOT_EDGE_X);
+  GetAddrOffsets(src, Point(), offsets, NOT_EDGE_X);
   for (size_t i = 0; i < dst_.rows; ++i) {
     for (size_t j = drange_l; j < drange_g; ++j) {
       dst_(i, j) = WeightedAverage(&src(i, j), offsets, kernelx);
@@ -79,13 +86,13 @@ static void GaussianBlurImpl(const Mat& src, Mat& dst,
   }
   // the left and right edge
   for (size_t j = 0, t = kernelx.size() - 1; j < drange_l; ++j) {
-    GetAddrOffsets(dst_, Point(j, 0), offsets, LEFT_EDGE_X);
+    GetAddrOffsets(src, Point(j, 0), offsets, LEFT_EDGE_X);
     for (size_t i = 0; i < dst_.rows; ++i) {
     dst_(i, j) = WeightedAverage(&src(i, j), offsets, kernelx);
     }
   }
   for (size_t j = drange_g, t = j - 2 + j; j < dst_.cols; ++j) {
-    GetAddrOffsets(dst_, Point(j, 0), offsets, RIGHT_EDGE_X);
+    GetAddrOffsets(src, Point(j, 0), offsets, RIGHT_EDGE_X);
     for (size_t i = 0; i < dst_.rows; ++i) {
     dst_(i, j) = WeightedAverage(&src(i, j), offsets, kernelx);
     }
@@ -98,20 +105,20 @@ static void GaussianBlurImpl(const Mat& src, Mat& dst,
   GetAddrOffsets(dst, Point(), offsets, NOT_EDGE_Y);
   for (size_t i = drange_l; i < drange_g; ++i) {
     for (size_t j = 0; j < dst.cols; ++j) {
-      dst(i, j) = WeightedAverage(&dst_(i, j), offsets, kernely);
+      dst(i, j) = uchar(round(WeightedAverage(&dst_(i, j), offsets, kernely)));
     }
   }
   // the top and bottom edge
   for (size_t i = 0, t = kernely.size() - 1; i < drange_l; ++i) {
     GetAddrOffsets(dst, Point(0, i), offsets, TOP_EDGE_Y);
     for (size_t j = 0; j < dst.cols; ++j) {
-      dst(i, j) = WeightedAverage(&dst_(i, j), offsets, kernely);
+      dst(i, j) = uchar(round(WeightedAverage(&dst_(i, j), offsets, kernely)));
     }
   }
   for (size_t i = drange_g, t = i - 2 + i; i < dst.rows; ++i) {
     GetAddrOffsets(dst, Point(0, i), offsets, BOTTOM_EDGE_Y);
     for (size_t j = 0; j < dst.cols; ++j) {
-      dst(i, j) = WeightedAverage(&dst_(i, j), offsets, kernely);
+      dst(i, j) = uchar(round(WeightedAverage(&dst_(i, j), offsets, kernely)));
     }
   }
   dst_.Release();
@@ -178,13 +185,4 @@ static void GetAddrOffsets(const Mat& img, const Point& pt,
   } else {
     fill(offsets.begin(), offsets.end(), 0);
   }
-}
-
-static uchar WeightedAverage(const uchar* data, std::vector<int>& offsets,
-                             const std::vector<float>& coef) {
-  float average{0};
-  for (size_t i = 0; i < coef.size(); ++i) {
-    average += data[offsets[i]] * coef[i];
-  }
-  return uchar(average);
 }

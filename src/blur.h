@@ -27,13 +27,6 @@ static void GetGaussianKernel(
 static void GaussianBlurImpl(const Mat& src, Mat& dst,
     const std::vector<float>& kernelx, const std::vector<float>& kernely);
 
-#define NOT_EDGE_X 0
-#define LEFT_EDGE_X 1
-#define RIGHT_EDGE_X 2
-#define NOT_EDGE_Y 3
-#define TOP_EDGE_Y 4
-#define BOTTOM_EDGE_Y 5
-
 // gets data address offsets
 static void GetAddrOffsets(const Mat& img, const Point& central_pt,
                            std::vector<int>& offsets, int edge_type);
@@ -41,6 +34,13 @@ static void GetAddrOffsets(const Mat& img, const Point& central_pt,
 // computes the weighted average with coef
 // data points to the central data of an array, the length of the computed data
 // equals to that of coef.
-// data + offsets[i] * sizeof(uchar) == &data[i+1]
-static uchar WeightedAverage(const uchar* data, std::vector<int>& offsets,
-                             const std::vector<float>& coef);
+// data + offsets[i] * sizeof(T) == &data[i+1]
+template<typename T>
+static float WeightedAverage(const T* data, std::vector<int>& offsets,
+                             const std::vector<float>& coef) {
+  float average{.0f};
+  for (size_t i = 0; i < coef.size(); ++i) {
+    average += data[offsets[i]] * coef[i];
+  }
+  return average;
+}

@@ -308,10 +308,10 @@ Mat_<T> Resize(const Mat_<T>& src, float fx = 1, float fy = 1) {
       float x_fract = x - int(x);
       float y_fract = y - int(y);
       // bilinear interpolation
-      dst(i, j) = T((1 - x_fract) * (1 - y_fract) * src(int(y), int(x)) +
-                    (1 - x_fract) * y_fract * src(int(y) + 1, int(x)) +
-                    x_fract * (1 - y_fract) * src(int(y), int(x) + 1) +
-                    x_fract * y_fract * src(int(y) + 1, int(x) + 1));
+      dst(i, j) = T(round((1 - x_fract) * (1 - y_fract) * src(int(y), int(x)) +
+                          (1 - x_fract) * y_fract * src(int(y) + 1, int(x)) +
+                          x_fract * (1 - y_fract) * src(int(y), int(x) + 1) +
+                          x_fract * y_fract * src(int(y) + 1, int(x) + 1)));
     }
   }
   return dst;
