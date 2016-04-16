@@ -292,7 +292,7 @@ Mat_<T>& Mat_<T>::operator -=(const Mat_<Tm>& m) {
 // If fx or fy is less than 0, it's considered a wrong call and no memory
 // will be allocated. It returns src in this case.
 template<typename T>
-Mat_<T> Resize(const Mat_<T>& src, float fx = 1, float fy = 1) {
+Mat_<T> Resize(const Mat_<T>& src, double fx = 1., double fy = 1.) {
   if (fx < 0 || fy < 0)
     return src;
 
@@ -302,16 +302,18 @@ Mat_<T> Resize(const Mat_<T>& src, float fx = 1, float fy = 1) {
   for (size_t i = 0; i < dst.rows; ++i) {
     for (size_t j = 0; j < dst.cols; ++j) {
       // dst(i, j) is supposed to be src(y, x)
-      float x = float(j) * src.cols / dst.cols;
-      float y = float(i) * src.rows / dst.rows;
+      double x = j * fx;
+      double y = i * fy;
       // the fractional part of x and y
-      float x_fract = x - int(x);
-      float y_fract = y - int(y);
+      double x_fract = x - int(x);
+      double y_fract = y - int(y);
+      double xy_mul_fract = x_fract * y_fract;
       // bilinear interpolation
-      dst(i, j) = T(round((1 - x_fract) * (1 - y_fract) * src(int(y), int(x)) +
-                          (1 - x_fract) * y_fract * src(int(y) + 1, int(x)) +
-                          x_fract * (1 - y_fract) * src(int(y), int(x) + 1) +
-                          x_fract * y_fract * src(int(y) + 1, int(x) + 1)));
+      dst(i, j) = T(round(
+          (1 - x_fract - y_fract + xy_mul_fract) * src(int(y), int(x)) +
+          (y_fract - xy_mul_fract) * src(int(y) + 1, int(x)) +
+          (x_fract - xy_mul_fract) * src(int(y), int(x) + 1) +
+          xy_mul_fract * src(int(y) + 1, int(x) + 1)));
     }
   }
   return dst;

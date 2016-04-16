@@ -8,7 +8,7 @@
 using namespace std;
 
 OrbMethod::OrbMethod(
-    int nfeatures_, size_t nlevels_, float scale_factor_, int fast_threshold_,
+    int nfeatures_, size_t nlevels_, double scale_factor_, int fast_threshold_,
     int border_width_, float harris_k_, int patch_size_)
     : nfeatures(nfeatures_), nlevels(nlevels_), scale_factor(scale_factor_),
       fast_threshold(fast_threshold_), border_width(border_width_),
@@ -36,8 +36,10 @@ void OrbMethod::GetPyramid(
   Mat img_;
   img_.Allocate(img);
   pyramid.push_back(img_);
+  double scale{1.};
   for (size_t i = 1; i < nlevels; ++i) {
-    pyramid.push_back(Resize(pyramid[i - 1], scale_factor, scale_factor));
+    scale *= scale_factor;
+    pyramid.push_back(Resize(pyramid[0], scale, scale));
   }
 }
 
@@ -66,14 +68,10 @@ void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
     // Remove points with lower response by Harris method
     HarrisResponses(curr_kpts, pyramid[i]);
     KeyPointsRetainBest(curr_kpts, npts_per_level[i]);
-
-    if (i==0){
-    curr_kpts.push_back(KeyPoint{ Pointf{115.f,214.f}, 31,-1,0,0,-1});
-    HarrisResponses(curr_kpts, pyramid[i]);}
-
+    
     // Calculate octave and size of keypoints
     if (i)
-      scale *= scale_factor;
+      scale *= float(scale_factor);
     for (auto& e : curr_kpts) {
       e.octave = i;
       e.size = patch_size * scale;
@@ -97,9 +95,9 @@ void OrbMethod::PtsPerLevel(std::vector<size_t>& npts_per_level) const {
   npts_per_level.resize(nlevels);
 
   // pts_in_1st_level*(1 + scale_factor +...+ scale_factor^(n-1)) = nfeatures
-  float factor = 1 / scale_factor;
-  float ndesired_pts_per_level = nfeatures * (1 - factor) /
-      (1 - (float)pow(double(factor), double(nlevels)));
+  double factor = 1 / scale_factor;
+  double ndesired_pts_per_level =
+      nfeatures * (1 - factor) / (1 - pow(factor, double(nlevels)));
 
   int sum_features = 0;
   for (size_t i = 0; i < nlevels - 1; i++) {
@@ -128,7 +126,7 @@ void OrbMethod::HarrisResponses(
         int x = x0 + j;
         // x gradient, Sobel
         int Ix = img(y - 1, x + 1) - img(y - 1, x - 1) +
-                 (img(y, x + 1) - img(y0, x - 1)) * 2 +
+                 (img(y, x + 1) - img(y, x - 1)) * 2 +
                  img(y + 1, x + 1) - img(y + 1, x - 1);
         // y gradient, Sobel
         int Iy = img(y + 1, x - 1) - img(y - 1, x - 1) +
@@ -187,7 +185,7 @@ void OrbMethod::ICAngle(
       m_01 += i * i_sum;
     }
 
-    e.angle = OfastAtan((float)m_01, (float)m_10);
+    e.angle = float(OfastAtan(double(m_01), double(m_10)));
   }
 }
 
@@ -197,9 +195,9 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
   descriptors.clear();
   descriptors.resize(keypoints.size());
 
-  vector<float> scale(pyramid.size());
-  float scale_factor_ = 1 / scale_factor;
-  scale[0] = 1;
+  vector<double> scale(pyramid.size());
+  double scale_factor_ = 1 / scale_factor;
+  scale[0] = 1.;
   for (size_t i = 1; i < scale.size(); ++i) {
     scale[i] = scale[i - 1] * scale_factor_;
   }
@@ -227,8 +225,8 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
   }
 }
 
-static float OfastAtan(float y, float x) {
-  float theta = float(RAD2DEG(atan2(y, x))); // -180 ~ 180
+static double OfastAtan(double y, double x) {
+  double theta = RAD2DEG(atan2(y, x)); // -180 ~ 180
   theta += theta < 0 ? 360 : 0; // 0 ~ 360
   return theta;
 }

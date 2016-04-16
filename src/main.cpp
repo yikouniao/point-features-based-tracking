@@ -24,8 +24,8 @@ int main(int argc, char** argv) {
   OrbDescriptors descriptors;
   orbd->OrbImpl(img, keypoints, descriptors);
 
-  MarkKeyPoints(img, keypoints);
-  ImgWrite("../result.bmp", img);
+  //MarkKeyPoints(img, keypoints);
+  //ImgWrite("../result.bmp", img);
 
   delete orbd;
   img.Release();
