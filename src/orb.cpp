@@ -36,10 +36,8 @@ void OrbMethod::GetPyramid(
   Mat img_;
   img_.Allocate(img);
   pyramid.push_back(img_);
-  double scale{1.};
   for (size_t i = 1; i < nlevels; ++i) {
-    scale *= scale_factor;
-    pyramid.push_back(Resize(pyramid[0], scale, scale));
+    pyramid.push_back(Resize(pyramid[i - 1], scale_factor, scale_factor));
   }
 }
 
