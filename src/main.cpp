@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define TEST 0
+#define TEST 1
 
 string f_name0 = "complex building/simu0014.bmp";
 string f_name1 = "complex building/simu0076.bmp";

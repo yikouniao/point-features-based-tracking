@@ -4,6 +4,7 @@
 #include "keypoint.h"
 #include "rect.h"
 #include "mat.h"
+#include "descmatch.h"
 
 using schar = signed char;
 using uchar = unsigned char;
