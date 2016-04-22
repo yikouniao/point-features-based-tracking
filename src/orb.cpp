@@ -4,6 +4,7 @@
 #include "blur.h"
 #include <algorithm>
 #include <iterator>
+#include <cstdint>
 
 using namespace std;
 
@@ -191,7 +192,11 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
                                const std::vector<KeyPoint>& keypoints,
                                OrbDescriptors& descriptors) const {
   descriptors.clear();
-  descriptors.resize(keypoints.size());
+  size_t nkeypoints = keypoints.size();
+  if (nkeypoints)
+    descriptors.resize(keypoints.size());
+  else
+    return;
 
   vector<double> scale(pyramid.size());
   double scale_factor_ = 1 / scale_factor;
@@ -200,7 +205,7 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
     scale[i] = scale[i - 1] * scale_factor_;
   }
 
-  for (size_t i = 0; i < keypoints.size(); ++i) {
+  for (size_t i = 0; i < nkeypoints; ++i) {
     const Point* pattern = (const Point*)bit_pattern_31_;
     const KeyPoint& kp = keypoints[i];
     int octave = kp.octave;
@@ -227,4 +232,30 @@ static double OfastAtan(double y, double x) {
   double theta = RAD2DEG(atan2(y, x)); // -180 ~ 180
   theta += theta < 0 ? 360 : 0; // 0 ~ 360
   return theta;
+}
+
+void OrbMatch(
+    const OrbDescriptors& desc_query, const OrbDescriptors& desc_train,
+    std::vector<DescMatch>& matches) {
+  matches.clear();
+  if (desc_query.empty() || desc_train.empty())
+    return;
+
+  for (int i = 0; i < int(desc_query.size()); ++i) {
+    int dist_min = INT32_MAX, dist_min_idx = -1;
+    int dist_sec_min = INT32_MAX;
+    for (int j = 0; j < int(desc_train.size()); ++j) {
+      int d = NormHamming((const uchar*)&desc_query[i],
+                          (const uchar*)&desc_train[j], 32);
+      if (dist_min > d) {
+        dist_sec_min = dist_min;
+        dist_min = d;
+        dist_min_idx = j;
+      } else if (dist_sec_min > d) {
+        dist_sec_min = d;
+      }
+    }
+    if (dist_min_idx > 0 && dist_min < nn_match_ratio * dist_sec_min)
+      matches.push_back({i, dist_min_idx, float(dist_min)});
+  }
 }

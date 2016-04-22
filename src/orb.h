@@ -314,3 +314,12 @@ static int bit_pattern_31_[256 * 4] = {
   7,0, 12,-2/*mean (0.127002), correlation (0.537452)*/,
   -1,-6, 0,-11/*mean (0.127148), correlation (0.547401)*/
 };
+
+//const size_t k = 2; // k for knn-match, not directly used in the code
+// If 1st match distance < 2nd match distan * ratio, it's a good match.
+const float nn_match_ratio = .8f;
+
+// matches orb descriptors
+void OrbMatch(
+    const OrbDescriptors& desc_query, const OrbDescriptors& desc_train,
+    std::vector<DescMatch>& matches);
