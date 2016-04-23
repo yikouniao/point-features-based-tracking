@@ -255,7 +255,8 @@ void OrbMatch(
         dist_sec_min = d;
       }
     }
-    if (dist_min_idx > 0 && dist_min < nn_match_ratio * dist_sec_min)
+    if (dist_min_idx > 0 && dist_min < nn_match_thres &&
+        dist_min < nn_match_ratio * dist_sec_min)
       matches.push_back({i, dist_min_idx, float(dist_min)});
   }
 }

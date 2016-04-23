@@ -316,8 +316,10 @@ static int bit_pattern_31_[256 * 4] = {
 };
 
 //const size_t k = 2; // k for knn-match, not directly used in the code
-// If 1st match distance < 2nd match distan * ratio, it's a good match.
+// If minimum distance < second minimum distan * ratio, it's a good match.
 const float nn_match_ratio = .8f;
+// If minimum distance < nn_match_thres, it's a good match.
+const int nn_match_thres = 100;
 
 // matches orb descriptors
 void OrbMatch(

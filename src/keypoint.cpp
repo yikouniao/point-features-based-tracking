@@ -64,7 +64,7 @@ void MarkKeyPoints(
       int y = lroundf(e.y);
       int x = lroundf(e.x);
       img(y, x - 1) = img(y, x) = img(y, x + 1) =
-          img(y - 1, x) = img(y + 1, x) = 255;
+          img(y - 1, x) = img(y + 1, x) = img(y, x) > 180 ? 0 : 255;
     }
   }
 }
