@@ -7,6 +7,9 @@ struct DescMatch {
   DescMatch();
   DescMatch(int idx_query_, int idx_train_, float distance_);
 
+  // destructor
+  ~DescMatch();
+
   int idx_query; // query descriptor index
   int idx_train; // train descriptor index
   float distance;

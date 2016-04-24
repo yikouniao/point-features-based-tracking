@@ -9,6 +9,8 @@ DescMatch::DescMatch() {
 DescMatch::DescMatch(int idx_query_, int idx_train_, float distance_)
     : idx_query(idx_query_), idx_train(idx_train_), distance(distance_) {}
 
+DescMatch::~DescMatch() {}
+
 bool operator <(const DescMatch& m1, const DescMatch& m2) {
   return m1.distance < m2.distance;
 }
