@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
 
   OrbMethod* orb = new OrbMethod();
 
-  // first orb
+  // orb for the first image
   Mat img_ref = ImgRead(img_ref_fname);
   vector<KeyPoint> keypoints_ref;
   OrbDescriptors descriptors_ref;
@@ -75,6 +75,13 @@ int main(int argc, char** argv) {
   for (++img_cnt; img_cnt < 255; ++img_cnt) {
     GetNextImgFileName(img_rt_fname);
     // orb
+    Mat img_rt = ImgRead(img_rt_fname);
+    vector<KeyPoint> keypoints_rt;
+    OrbDescriptors descriptors_rt;
+    orb->OrbImpl(img_rt, keypoints_rt, descriptors_rt);
+    // match
+    vector<DescMatch> matches;
+    OrbMatch(descriptors_ref, descriptors_rt, matches);
   }
 
   img_ref.Release();

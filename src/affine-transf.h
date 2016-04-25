@@ -18,3 +18,7 @@ struct AffineTransf {
   float tx; // translation in X-axis
   float ty; // translation in Y-axis
 };
+
+// groups matches to calculate affine transformation by sequential clustering
+void GetAffineTransf(const std::vector<DescMatch>& matches,
+                     AffineTransf& transf);
