@@ -1,5 +1,5 @@
 #include "affine-transf.h"
-#include <vector>
+#include <forward_list>
 
 using namespace std;
 
@@ -21,6 +21,16 @@ AffineTransf::AffineTransf(const KeyPoint& ref1, const KeyPoint& ref2,
   tx = dst2.x - s * (ref2.x * cos(theta) - ref2.y * sin(theta));
   ty = dst2.y - s * (ref2.x * sin(theta) + ref2.y * cos(theta));
 }
+
+float AffineTransf::get_s() { return s; }
+float AffineTransf::get_theta() { return theta; }
+float AffineTransf::get_tx() { return tx; }
+float AffineTransf::get_ty() { return ty; }
+
+void AffineTransf::set_s(float s_) { s = s_; }
+void AffineTransf::set_theta(float theta_) { theta = theta_; }
+void AffineTransf::set_tx(float tx_) { tx = tx_; }
+void AffineTransf::set_ty(float ty_) { ty = ty_; }
 
 void GetAffineTransf(
     const std::vector<KeyPoint>& kps_ref, const std::vector<KeyPoint>& kps_dst,
@@ -44,5 +54,15 @@ void GetAffineTransf(
     }
   }
 
-  //GetAffineTransfImpl
+  GetAffineTransfImpl(transf_train, transf);
+}
+
+void GetAffineTransfImpl(
+    const std::vector<AffineTransf>& transf_train, AffineTransf& transf_dst,
+    double thresh, int max_weight, int max_pattern_num) {
+  vector<forward_list<int>> pattern_idx(1);
+  pattern_idx[0].insert_after(pattern_idx[0].before_begin(), 0);
+  for (const auto& train : transf_train) {
+    // distance
+  }
 }
