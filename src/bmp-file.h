@@ -5,7 +5,7 @@
 
 // considers only 8-bit gray .bmp file
 class BMP {
-public:
+ public:
   static Mat Read(std::string f_name);
   static void Write(std::string f_name, const Mat& img);
 };
