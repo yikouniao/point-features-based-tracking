@@ -39,6 +39,14 @@ AffineTransf& AffineTransf::operator +=(const AffineTransf& transf) {
   return *this;
 }
 
+AffineTransf& AffineTransf::operator *=(int n) {
+  s *= n;
+  theta *= n;
+  tx *= n;
+  ty *= n;
+  return *this;
+}
+
 AffineTransf& AffineTransf::operator /=(int n) {
   s /= n;
   theta /= n;
@@ -53,6 +61,11 @@ AffineTransf& AffineTransf::Square() {
   tx *= tx;
   ty *= ty;
   return *this;
+}
+
+AffineTransf operator +(const AffineTransf& t1, const AffineTransf& t2) {
+  return AffineTransf{t1.s + t2.s, t1.theta + t2.theta,
+                      t1.tx + t2.tx, t1.ty + t2.ty };
 }
 
 AffineTransf operator -(const AffineTransf& t1, const AffineTransf& t2) {
@@ -84,9 +97,9 @@ float MahDistance(const AffineTransf& r1, const AffineTransf& r2,
     (r1.theta - r2.theta) * (r1.theta - r2.theta) / var.theta;
 }
 
-void GetAffineTransf(
+AffineTransf GetAffineTransf(
     const std::vector<KeyPoint>& kps_ref, const std::vector<KeyPoint>& kps_dst,
-    const std::vector<DescMatch>& matches, AffineTransf& transf) {
+    const std::vector<DescMatch>& matches) {
   vector<AffineTransf> transf_train;
 
 #define GET_POINTS(i, j) \
@@ -106,31 +119,44 @@ void GetAffineTransf(
     }
   }
 
-  GetAffineTransfImpl(transf_train, transf);
+  return GetAffineTransfImpl(transf_train);
 }
 
-static void GetAffineTransfImpl(
-    const std::vector<AffineTransf>& transf_train, AffineTransf& transf_dst,
-    float thresh, int max_weight, int max_pattern_num) {
+static AffineTransf GetAffineTransfImpl(
+    const std::vector<AffineTransf>& transf_train, float thresh,
+    int max_weight, size_t max_pattern_num) {
   AffineTransf var{GetVar(transf_train)}; // Calculate variance
-  vector<forward_list<int>> patterns(1, forward_list<int>(1, 0));
+  vector<AffineTransf> patterns(1, transf_train[0]);
+  vector<int> weights(1, 1);
+
   for (size_t i = 1; i < transf_train.size(); ++i) {
     float dist_min = FLT_MAX;
     size_t dist_min_idx = -1;
     // Compute Mahalanobis distance between current point and processed points
     for (size_t j = 0; j < patterns.size(); ++j) {
-      for (const auto& idx : patterns[j]) {
-        float dist = MahDistance(transf_train[i], transf_train[idx], var);
-        if (dist < dist_min) {
-          dist_min = dist;
-          dist_min_idx = j;
-        }
+      float dist = MahDistance(transf_train[i], patterns[j], var);
+      if (dist < dist_min) {
+        dist_min = dist;
+        dist_min_idx = j;
       }
     }
-    if (dist_min < thresh) {
-      patterns[dist_min_idx].push_front(dist_min_idx);
+
+#define GET_CENTROID(idx) \
+    {((patterns[idx] *= (weights[idx])++) += transf_train[i]) /= weights[idx];}
+
+    if (dist_min < thresh || weights.size() >= max_pattern_num) {
+      // Get new centroid and add 1 to weight correspondingly
+      GET_CENTROID(dist_min_idx);
+      // If the weight of a pattern is large enough, take it as the result.
+      if (weights[dist_min_idx] > max_weight)
+        return patterns[dist_min_idx];
     } else {
-      patterns.push_back(forward_list<int>(1, dist_min_idx));
+      // add a new pattern
+      patterns.push_back(transf_train[i]);
+      weights.push_back(1);
     }
   }
+
+  return *(max_element(weights.cbegin(), weights.cend()) - weights.cbegin() +
+           patterns.cbegin());
 }

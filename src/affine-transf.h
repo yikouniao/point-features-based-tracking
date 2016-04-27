@@ -17,6 +17,7 @@ class AffineTransf {
 
   // operators overloading
   AffineTransf& operator +=(const AffineTransf& transf);
+  AffineTransf& operator *=(int n);
   AffineTransf& operator /=(int n);
 
   // pow(*this, 2)
@@ -29,6 +30,7 @@ class AffineTransf {
 };
 
 // operators overloading
+AffineTransf operator +(const AffineTransf& t1, const AffineTransf& t2);
 AffineTransf operator -(const AffineTransf& t1, const AffineTransf& t2);
 
 // calculates variance
@@ -39,10 +41,9 @@ float MahDistance(const AffineTransf& r1, const AffineTransf& r2,
                   const AffineTransf& var);
 
 // groups matches to calculate affine transformation by sequential clustering
-void GetAffineTransf(const std::vector<DescMatch>& matches,
-                     AffineTransf& transf);
+AffineTransf GetAffineTransf(const std::vector<DescMatch>& matches);
 
 // gets affine transformation by sequential clustering
-static void GetAffineTransfImpl(
-    const std::vector<AffineTransf>& transf_train, AffineTransf& transf_dst,
-    float thresh = 2.0e-13f, int max_weight = 50, int max_pattern_num = 10);
+static AffineTransf GetAffineTransfImpl(
+    const std::vector<AffineTransf>& transf_train, float thresh = 2.0e-13f,
+    int max_weight = 50, size_t max_pattern_num = 10);
