@@ -45,4 +45,4 @@ void GetAffineTransf(const std::vector<DescMatch>& matches,
 // gets affine transformation by sequential clustering
 static void GetAffineTransfImpl(
     const std::vector<AffineTransf>& transf_train, AffineTransf& transf_dst,
-    double thresh = 2.0e-13, int max_weight = 50, int max_pattern_num = 10);
+    float thresh = 2.0e-13f, int max_weight = 50, int max_pattern_num = 10);

@@ -1,6 +1,7 @@
 #include "affine-transf.h"
 #include <forward_list>
 #include <algorithm>
+#include <cfloat>
 
 using namespace std;
 
@@ -110,10 +111,26 @@ void GetAffineTransf(
 
 static void GetAffineTransfImpl(
     const std::vector<AffineTransf>& transf_train, AffineTransf& transf_dst,
-    double thresh, int max_weight, int max_pattern_num) {
-  vector<forward_list<int>> pattern_idx(1);
-  pattern_idx[0].insert_after(pattern_idx[0].before_begin(), 0);
-  for (const auto& train : transf_train) {
-    // distance
+    float thresh, int max_weight, int max_pattern_num) {
+  AffineTransf var{GetVar(transf_train)}; // Calculate variance
+  vector<forward_list<int>> patterns(1, forward_list<int>(1, 0));
+  for (size_t i = 1; i < transf_train.size(); ++i) {
+    float dist_min = FLT_MAX;
+    size_t dist_min_idx = -1;
+    // Compute Mahalanobis distance between current point and processed points
+    for (size_t j = 0; j < patterns.size(); ++j) {
+      for (const auto& idx : patterns[j]) {
+        float dist = MahDistance(transf_train[i], transf_train[idx], var);
+        if (dist < dist_min) {
+          dist_min = dist;
+          dist_min_idx = j;
+        }
+      }
+    }
+    if (dist_min < thresh) {
+      patterns[dist_min_idx].push_front(dist_min_idx);
+    } else {
+      patterns.push_back(forward_list<int>(1, dist_min_idx));
+    }
   }
 }
