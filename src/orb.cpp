@@ -198,10 +198,11 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
   else
     return;
 
-  vector<double> scale(pyramid.size());
+  size_t pyramid_size = pyramid.size();
+  vector<double> scale(pyramid_size);
   double scale_factor_ = 1 / scale_factor;
   scale[0] = 1.;
-  for (size_t i = 1; i < scale.size(); ++i) {
+  for (size_t i = 1; i < pyramid_size; ++i) {
     scale[i] = scale[i - 1] * scale_factor_;
   }
 
@@ -244,7 +245,8 @@ void OrbMatch(
   for (int i = 0; i < int(desc_query.size()); ++i) {
     int dist_min = INT32_MAX, dist_min_idx = -1;
     int dist_sec_min = INT32_MAX;
-    for (int j = 0; j < int(desc_train.size()); ++j) {
+    int desc_train_size = int(desc_train.size());
+    for (int j = 0; j < desc_train_size; ++j) {
       int d = NormHamming((const uchar*)&desc_query[i],
                           (const uchar*)&desc_train[j], 32);
       if (dist_min > d) {
@@ -255,8 +257,8 @@ void OrbMatch(
         dist_sec_min = d;
       }
     }
-    if (dist_min_idx > 0 && dist_min < nn_match_thres &&
-        dist_min < nn_match_ratio * dist_sec_min)
+    // Record valid matches
+    if (dist_min_idx > 0 && dist_min < nn_match_ratio * dist_sec_min)
       matches.push_back({i, dist_min_idx, float(dist_min)});
   }
 }

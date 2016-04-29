@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
     vector<KeyPoint> keypoints_rt;
     OrbDescriptors descriptors_rt;
     orb->OrbImpl(img_rt, keypoints_rt, descriptors_rt);
+    img_rt.Release();
     // match
     vector<DescMatch> matches;
     OrbMatch(descriptors_ref, descriptors_rt, matches);
