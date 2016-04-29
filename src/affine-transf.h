@@ -15,6 +15,9 @@ class AffineTransf {
   // destructor
   ~AffineTransf();
 
+  // gets destination point by affine transformation
+  void GetDstPoint(const Pointf& ref, Pointf& dst);
+
   // operators overloading
   AffineTransf& operator +=(const AffineTransf& transf);
   AffineTransf& operator *=(int n);

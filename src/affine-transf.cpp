@@ -31,6 +31,11 @@ AffineTransf::AffineTransf(const Pointf& ref1, const Pointf& ref2,
 
 AffineTransf::~AffineTransf() {}
 
+void AffineTransf::GetDstPoint(const Pointf& ref, Pointf& dst) {
+  dst.x = tx + s * (ref.x * cos(theta) - ref.y * sin(theta));
+  dst.y = ty + s * (ref.x * sin(theta) + ref.y * cos(theta));
+}
+
 AffineTransf& AffineTransf::operator +=(const AffineTransf& transf) {
   s += transf.s;
   theta += transf.theta;

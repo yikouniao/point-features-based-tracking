@@ -85,7 +85,8 @@ int main(int argc, char** argv) {
     vector<DescMatch> matches;
     OrbMatch(descriptors_ref, descriptors_rt, matches);
     // affine transformation
-    AffineTransf transf{GetAffineTransf(keypoints_ref, keypoints_rt, matches)};
+    AffineTransf{GetAffineTransf(keypoints_ref, keypoints_rt, matches)}.
+        GetDstPoint(obj_rel[img_cnt], obj_res[img_cnt]);
   }
 
   img_ref.Release();
