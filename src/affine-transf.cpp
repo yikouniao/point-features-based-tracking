@@ -17,8 +17,8 @@ AffineTransf::AffineTransf(const AffineTransf& transf) {
   ty = transf.ty;
 }
 
-AffineTransf::AffineTransf(const KeyPoint& ref1, const KeyPoint& ref2,
-                           const KeyPoint& dst1, const KeyPoint& dst2) {
+AffineTransf::AffineTransf(const Pointf& ref1, const Pointf& ref2,
+                           const Pointf& dst1, const Pointf& dst2) {
   float dx_ref = ref1.x - ref2.x, dx_dst = dst1.x - dst2.x;
   float dy_ref = ref1.y - ref2.y, dy_dst = dst1.y - dst2.y;
   s = (dx_dst * dx_dst + dy_dst * dy_dst) /
@@ -103,8 +103,8 @@ AffineTransf GetAffineTransf(
   vector<AffineTransf> transf_train;
 
 #define GET_POINTS(i, j) \
-    {kps_ref[matches[i].idx_query], kps_ref[matches[j].idx_query], \
-     kps_dst[matches[i].idx_train], kps_dst[matches[j].idx_train]}
+    {kps_ref[matches[i].idx_query].point, kps_ref[matches[j].idx_query].point,\
+     kps_dst[matches[i].idx_train].point, kps_dst[matches[j].idx_train].point}
 
   // If there're few matchse, select matches by C(n, 2);
   if (matches.size() < 30) {

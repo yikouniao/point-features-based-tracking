@@ -81,8 +81,7 @@ void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
 
     // Calculate coordinates of keypoints
     for (auto& e : curr_kpts) {
-      e.x *= scale;
-      e.y *= scale;
+      e.point *= scale;
     }
     
     keypoints.insert(keypoints.end(), curr_kpts.begin(), curr_kpts.end());
@@ -117,8 +116,8 @@ void OrbMethod::HarrisResponses(
 
   for (auto& e : keypoints) {
     int Ix_2 = 0 /* Ix^2 */, Iy_2 = 0 /* Iy^2 */, IxIy = 0 /* Ix*Iy */;
-    int y0 = (int)e.y - block_size / 2;
-    int x0 = (int)e.x - block_size / 2;
+    int y0 = (int)e.point.y - block_size / 2;
+    int x0 = (int)e.point.x - block_size / 2;
     for (size_t i = 0; i < block_size; ++i) {
       for (size_t j = 0; j < block_size; ++j) {
         int y = y0 + i;
@@ -170,13 +169,13 @@ void OrbMethod::ICAngle(
 
     // the center line, i = 0, m_01 = 0
     for (int j = -radius; j <= radius; ++j)
-      m_10 += j * img(lround(e.y), lround(e.x) + j);
+      m_10 += j * img(Point(e.point) + Point(j, 0));
 
     for (int i = 1, i_sum = 0; i <= radius; ++i) {
       // Proceed over the two lines symmetrically
       for (int j = -jmax[i]; j <= jmax[i]; ++j) {
-        int i_plus = img(lround(e.y) + i, lround(e.x) + j);
-        int i_minus = img(lround(e.y) - i, lround(e.x) + j);
+        int i_plus = img(Point(e.point) + Point(j, i));
+        int i_minus = img(Point(e.point) + Point(j, -i));
         m_10 += j * (i_plus + i_minus);
         i_sum += (i_plus - i_minus);
       }
@@ -213,7 +212,8 @@ void OrbMethod::GetDescriptors(const std::vector<Mat>& pyramid,
     const Mat& img = pyramid[octave];
     float angle = float(DEG2RAD(kp.angle));
     float cos_a = cos(angle), sin_a = sin(angle);
-    const Point center{int(kp.x * scale[octave]), int(kp.y * scale[octave])};
+    const Point center{int(kp.point.x * scale[octave]),
+                       int(kp.point.y * scale[octave])};
 
 #define GET_VALUE(k) \
     (img(center + Point(lround(pattern[k].x * cos_a - pattern[k].y * sin_a), \

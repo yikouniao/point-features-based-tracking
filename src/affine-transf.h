@@ -9,8 +9,8 @@ class AffineTransf {
   AffineTransf();
   AffineTransf(float s_, float theta_, float tx_, float ty_);
   AffineTransf(const AffineTransf& transf_);
-  AffineTransf(const KeyPoint& ref1, const KeyPoint& ref2,
-               const KeyPoint& dst1, const KeyPoint& dst2);
+  AffineTransf(const Pointf& ref1, const Pointf& ref2,
+               const Pointf& dst1, const Pointf& dst2);
 
   // destructor
   ~AffineTransf();
@@ -41,7 +41,9 @@ float MahDistance(const AffineTransf& r1, const AffineTransf& r2,
                   const AffineTransf& var);
 
 // groups matches to calculate affine transformation by sequential clustering
-AffineTransf GetAffineTransf(const std::vector<DescMatch>& matches);
+AffineTransf GetAffineTransf(
+    const std::vector<KeyPoint>& kps_ref, const std::vector<KeyPoint>& kps_dst,
+    const std::vector<DescMatch>& matches);
 
 // gets affine transformation by sequential clustering
 static AffineTransf GetAffineTransfImpl(

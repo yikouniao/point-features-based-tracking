@@ -4,10 +4,10 @@
 #include <vector>
 #include "mat.h"
 
-class KeyPoint : public Pointf {
+class KeyPoint {
  public:
   // constructors
-  KeyPoint(Pointf pt_, float size_, float angle_ = -1,
+  KeyPoint(const Pointf& point_, float size_, float angle_ = -1,
            float response_ = 0, int octave_ = -1, int class_id_ = -1);
   KeyPoint(float x_, float y_, float size_, float angle_ = -1,
            float response_ = 0, int octave_ = -1, int class_id_ = -1);
@@ -15,6 +15,7 @@ class KeyPoint : public Pointf {
   // destructor
   ~KeyPoint();
 
+  Pointf point; // (x, y)
   float size; // diameter of the meaningful keypoint neighborhood
   float angle; // keypoint orientation (-1 if not applicable)
   float response; // keypoint detector response on the keypoint

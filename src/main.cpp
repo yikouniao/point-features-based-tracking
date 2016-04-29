@@ -2,6 +2,7 @@
 #include "orb.h"
 #include "file.h"
 #include "err.h"
+#include "affine-transf.h"
 #include "fstream"
 
 using namespace std;
@@ -83,6 +84,8 @@ int main(int argc, char** argv) {
     // match
     vector<DescMatch> matches;
     OrbMatch(descriptors_ref, descriptors_rt, matches);
+    // affine transformation
+    AffineTransf transf{GetAffineTransf(keypoints_ref, keypoints_rt, matches)};
   }
 
   img_ref.Release();

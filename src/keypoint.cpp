@@ -4,14 +4,14 @@
 
 using namespace std;
 
-KeyPoint::KeyPoint(Pointf pt_, float size_, float angle_, float response_,
-                   int octave_, int class_id_)
-    : Pointf(pt_), size(size_), angle(angle_), response(response_),
+KeyPoint::KeyPoint(const Pointf& point_, float size_, float angle_,
+                   float response_, int octave_, int class_id_)
+    : point(point_), size(size_), angle(angle_), response(response_),
       octave(octave_), class_id(class_id_) {}
 
 KeyPoint::KeyPoint(float x_, float y_, float size_, float angle_,
                    float response_, int octave_, int class_id_)
-    : Pointf(x_, y_), size(size_), angle(angle_),
+    : point(x_, y_), size(size_), angle(angle_),
       response(response_), octave(octave_), class_id(class_id_) {}
 
 KeyPoint::~KeyPoint() {}
@@ -36,16 +36,16 @@ void KeyPointsMask(std::vector<KeyPoint>& keypoints, const Mat& mask) {
   if (mask.Empty())
     return;
 
-  for (auto i = keypoints.begin(); i != keypoints.end();) {
-    mask(lround(i->y), lround(i->x)) ? i = keypoints.erase(i) : ++i;
+  for (auto it = keypoints.begin(); it != keypoints.end();) {
+    mask(Point(it->point)) ? it = keypoints.erase(it) : ++it;
   }
 }
 
 void KeyPointsFilterByImgBorder(
     std::vector<KeyPoint>& keypoints, const Mat& img, size_t border_width) {
   for (auto& i = keypoints.begin(); i != keypoints.end();) {
-    (i->x < border_width || i->x > img.cols - border_width - 1 ||
-     i->y < border_width || i->y > img.rows - border_width - 1) ?
+    (i->point.x < border_width || i->point.x > img.cols - border_width - 1 ||
+     i->point.y < border_width || i->point.y > img.rows - border_width - 1) ?
       i = keypoints.erase(i) : ++i;
   }
 }
@@ -61,8 +61,8 @@ void MarkKeyPoints(
     Mat& img, const std::vector<KeyPoint>& keypoints, int octave) {
   for (const auto& e : keypoints) {
     if (octave == -1 || octave == e.octave) {
-      int y = lroundf(e.y);
-      int x = lroundf(e.x);
+      int y = lroundf(e.point.y);
+      int x = lroundf(e.point.x);
       img(y, x - 1) = img(y, x) = img(y, x + 1) =
           img(y - 1, x) = img(y + 1, x) = img(y, x) > 180 ? 0 : 255;
     }
