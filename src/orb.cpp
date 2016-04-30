@@ -9,7 +9,7 @@
 using namespace std;
 
 OrbMethod::OrbMethod(
-    int nfeatures_, size_t nlevels_, double scale_factor_, int fast_threshold_,
+    int nfeatures_, size_t nlevels_, float scale_factor_, int fast_threshold_,
     int border_width_, float harris_k_, int patch_size_)
     : nfeatures(nfeatures_), nlevels(nlevels_), scale_factor(scale_factor_),
       fast_threshold(fast_threshold_), border_width(border_width_),
@@ -70,7 +70,7 @@ void OrbMethod::GetKeyPoints(const std::vector<Mat>& pyramid,
     
     // Calculate octave and size of keypoints
     if (i)
-      scale *= float(scale_factor);
+      scale *= scale_factor;
     for (auto& e : curr_kpts) {
       e.octave = i;
       e.size = patch_size * scale;

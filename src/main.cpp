@@ -18,9 +18,9 @@ void GetRelPos(std::vector<Pointf>& obj_rel) {
 }
 
 void SaveResPos(std::vector<Pointf>& obj_res) {
-  ofstream fs(img_file_path + res_pos_fname);
+  ofstream fs(results_path + res_pos_fname);
   if (!fs)
-    Err("Cannot open " + img_file_path + res_pos_fname);
+    Err("Cannot open " + results_path + res_pos_fname);
 
   for (auto& e : obj_res) {
     fs << e.x << '\t' << e.y << '\n';
@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
   int img_cnt = 0;
   string img_ref_fname = img_file_path + img_fname; // reference image
   string img_rt_fname = img_ref_fname;              // real-time image
+  string result_fname = results_path + img_fname;   // result image
 
   OrbMethod* orb = new OrbMethod();
 
@@ -72,24 +73,31 @@ int main(int argc, char** argv) {
   OrbDescriptors descriptors_ref;
   orb->OrbImpl(img_ref, keypoints_ref, descriptors_ref);
 
+  // Save the result
+  MarkPoint(img_ref, obj_res[0]);
+  ImgWrite(result_fname, img_ref);
+  img_ref.Release();
+
   // other imgs
-  for (++img_cnt; img_cnt < 255; ++img_cnt) {
+  for (++img_cnt; img_cnt < img_num; ++img_cnt) {
     GetNextImgFileName(img_rt_fname);
     // orb
     Mat img_rt = ImgRead(img_rt_fname);
     vector<KeyPoint> keypoints_rt;
     OrbDescriptors descriptors_rt;
     orb->OrbImpl(img_rt, keypoints_rt, descriptors_rt);
-    img_rt.Release();
     // match
     vector<DescMatch> matches;
     OrbMatch(descriptors_ref, descriptors_rt, matches);
     // affine transformation
     AffineTransf{GetAffineTransf(keypoints_ref, keypoints_rt, matches)}.
         GetDstPoint(obj_rel[img_cnt], obj_res[img_cnt]);
+    // Save results
+    GetNextImgFileName(result_fname);
+    MarkPoint(img_rt, obj_res[img_cnt]);
+    ImgWrite(result_fname, img_rt);
+    img_rt.Release();
   }
-
-  img_ref.Release();
 
   delete orb;
 

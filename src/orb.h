@@ -10,7 +10,7 @@ class OrbMethod {
 public:
   // constructor
   OrbMethod(
-      int nfeatures_ = 500, size_t nlevels_ = 8, double scale_factor_ = 1.2f,
+      int nfeatures_ = 500, size_t nlevels_ = 8, float scale_factor_ = 1.2f,
       int fast_threshold_ = 20, int border_width_ = 31, float harris_k_ = .04f,
       int patch_size_ = 31);
 
@@ -43,7 +43,7 @@ public:
 
   int nfeatures; // quantity of features
   size_t nlevels; // amount of levels
-  double scale_factor; // factor for generating image pyramid
+  float scale_factor; // factor for generating image pyramid
   int fast_threshold; // threshold for FAST keypoints detection
   // the width of the border where the features are not detected
   // should roughly match patch_size

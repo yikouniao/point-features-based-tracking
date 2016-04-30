@@ -112,14 +112,15 @@ AffineTransf GetAffineTransf(
      kps_dst[matches[i].idx_train].point, kps_dst[matches[j].idx_train].point}
 
   // If there're few matchse, select matches by C(n, 2);
-  if (matches.size() < 30) {
-    for (size_t i = 0; i < matches.size() - 1; ++i) {
-      for (size_t j = i + 1; j < matches.size(); ++j) {
+  size_t matches_size = matches.size();
+  if (matches_size < 30) {
+    for (size_t i = 0; i < matches_size - 1; ++i) {
+      for (size_t j = i + 1; j < matches_size; ++j) {
         transf_train.push_back(GET_POINTS(i, j));
       }
     }
   } else { // else go sequentially, i.e. (point1, point2), (point2, point3)
-    for (size_t i = 0; i < matches.size(); ++i) {
+    for (size_t i = 0; i < matches_size - 1; ++i) {
       transf_train.push_back(GET_POINTS(i, i + 1));
     }
   }
@@ -129,12 +130,14 @@ AffineTransf GetAffineTransf(
 
 static AffineTransf GetAffineTransfImpl(
     const std::vector<AffineTransf>& transf_train, float thresh,
-    int max_weight, size_t max_pattern_num) {
+    float max_weight_factor, size_t max_pattern_num) {
   AffineTransf var{GetVar(transf_train)}; // Calculate variance
   vector<AffineTransf> patterns(1, transf_train[0]);
   vector<int> weights(1, 1);
+  size_t transf_train_size = transf_train.size();
+  int max_weight = int(max_weight_factor * transf_train_size);
 
-  for (size_t i = 1; i < transf_train.size(); ++i) {
+  for (size_t i = 1; i < transf_train_size; ++i) {
     float dist_min = FLT_MAX;
     size_t dist_min_idx = -1;
     // Compute Mahalanobis distance between current point and processed points
@@ -148,7 +151,7 @@ static AffineTransf GetAffineTransfImpl(
 
 #define GET_CENTROID(idx) \
     {((patterns[idx] *= (weights[idx])++) += transf_train[i]) /= weights[idx];}
-
+    
     if (dist_min < thresh || weights.size() >= max_pattern_num) {
       // Get new centroid and add 1 to weight correspondingly
       GET_CENTROID(dist_min_idx);

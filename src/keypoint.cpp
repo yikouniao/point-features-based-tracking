@@ -61,10 +61,7 @@ void MarkKeyPoints(
     Mat& img, const std::vector<KeyPoint>& keypoints, int octave) {
   for (const auto& e : keypoints) {
     if (octave == -1 || octave == e.octave) {
-      int y = lroundf(e.point.y);
-      int x = lroundf(e.point.x);
-      img(y, x - 1) = img(y, x) = img(y, x + 1) =
-          img(y - 1, x) = img(y + 1, x) = img(y, x) > 180 ? 0 : 255;
+      MarkPoint(img, Point(e.point));
     }
   }
 }
