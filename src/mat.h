@@ -302,11 +302,11 @@ Mat_<T> Resize(const Mat_<T>& src, float fx = 1.f, float fy = 1.f) {
   for (size_t i = 0; i < dst.rows; ++i) {
     for (size_t j = 0; j < dst.cols; ++j) {
       // dst(i, j) is supposed to be src(y, x)
-      double x = j * double(fx);
-      double y = i * double(fy);
+      float x = j * fx;
+      float y = i * fy;
       // the fractional part of x and y
-      float x_fract = float(x - int(x));
-      float y_fract = float(y - int(y));
+      float x_fract = x - int(x);
+      float y_fract = y - int(y);
       float xy_mul_fract = x_fract * y_fract;
       // bilinear interpolation
       dst(i, j) = T(round(

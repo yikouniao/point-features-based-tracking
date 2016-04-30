@@ -50,5 +50,5 @@ AffineTransf GetAffineTransf(
 
 // gets affine transformation by sequential clustering
 static AffineTransf GetAffineTransfImpl(
-    const std::vector<AffineTransf>& transf_train, float thresh = .02f,
-    float max_weight_factor = .13f, size_t max_pattern_num = 100);
+    const std::vector<AffineTransf>& transf_train, float thresh = .015f,
+    float max_weight_factor = .1f, size_t max_pattern_num = 100);
