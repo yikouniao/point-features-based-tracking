@@ -149,3 +149,17 @@ Point_<T>& Point_<T>::operator /=(const Ta a) {
   y = T(y / a);
   return *this;
 }
+
+template<typename T>
+double EuclidDist(const Point_<T>& pt1, const Point_<T>& pt2) {
+  double dx = pt1.x - pt2.x;
+  double dy = pt1.y - pt2.y;
+  return sqrt(dx * dx + dy * dy);
+}
+
+template<typename T>
+double EuclidDistSquare(const Point_<T>& pt1, const Point_<T>& pt2) {
+  double dx = pt1.x - pt2.x;
+  double dy = pt1.y - pt2.y;
+  return dx * dx + dy * dy;
+}

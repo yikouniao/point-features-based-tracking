@@ -107,6 +107,12 @@ AffineTransf GetAffineTransf(
     const std::vector<DescMatch>& matches) {
   vector<AffineTransf> transf_train;
 
+#define NOT_SAME_POINTS(i, j) \
+    (EuclidDistSquare(kps_ref[matches[i].idx_query].point, \
+                      kps_ref[matches[j].idx_query].point) > 1e-4 && \
+     EuclidDistSquare(kps_dst[matches[i].idx_train].point, \
+                      kps_dst[matches[j].idx_train].point) > 1e-4)
+
 #define GET_POINTS(i, j) \
     {kps_ref[matches[i].idx_query].point, kps_ref[matches[j].idx_query].point,\
      kps_dst[matches[i].idx_train].point, kps_dst[matches[j].idx_train].point}
@@ -116,12 +122,14 @@ AffineTransf GetAffineTransf(
   if (matches_size < 30) {
     for (size_t i = 0; i < matches_size - 1; ++i) {
       for (size_t j = i + 1; j < matches_size; ++j) {
-        transf_train.push_back(GET_POINTS(i, j));
+        if (NOT_SAME_POINTS(i, j))
+          transf_train.push_back(GET_POINTS(i, j));
       }
     }
   } else { // else go sequentially, i.e. (point1, point2), (point2, point3)
     for (size_t i = 0; i < matches_size - 1; ++i) {
-      transf_train.push_back(GET_POINTS(i, i + 1));
+      if (NOT_SAME_POINTS(i, i + 1))
+        transf_train.push_back(GET_POINTS(i, i + 1));
     }
   }
 

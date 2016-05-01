@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     OrbMatch(descriptors_ref, descriptors_rt, matches);
     // affine transformation
     AffineTransf{GetAffineTransf(keypoints_ref, keypoints_rt, matches)}.
-        GetDstPoint(obj_rel[img_cnt], obj_res[img_cnt]);
+        GetDstPoint(obj_rel[0], obj_res[img_cnt]);
     // Save results
     GetNextImgFileName(result_fname);
     MarkPoint(img_rt, obj_res[img_cnt]);
