@@ -14,7 +14,7 @@ Ethan Rublee, Vincent Rabaud, Kurt Konolige, Gary Bradski, ORB: an efficient alt
       calculate keypoints and descriptors for the real-time frame;
       match their descriptors;
       if (matches.size() < threshold) { // threshold is 20 here
-        match real-time frame with the last 3 frames;
+        match reference frame with the last 3 frames before the current one;
         set the frame with most valid matches as the new reference frame;
       }
       affine transformation; // Get the best transformation by sequential clustering

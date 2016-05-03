@@ -93,27 +93,27 @@ int main(int argc, char** argv) {
     OrbDescriptors descriptors_rt;
     orb->OrbImpl(img_rt, keypoints_rt, descriptors_rt);
 
-    // match
+    // matches
     vector<DescMatch> matches;
     OrbMatch(descriptors_ref, descriptors_rt, matches);
 
     // If there're no enouge matches, reselect reference image from spare ones,
     // which has the biggest matches.size().
-    if (matches.size() < 20) {
+    if (matches.size() < 18) {
       vector<vector<DescMatch>> matches_spare(spare_num);
-      size_t best_matches = 0;
+      size_t best_matches_size = 0;
       int best_matches_idx = 0;
       for (int i = 0; i < spare_num; ++i) {
-        OrbMatch(descriptors_spare[i], descriptors_rt, matches_spare[i]);
-        if (best_matches < matches_spare[i].size()) {
-          best_matches = matches_spare[i].size();
+        OrbMatch(descriptors_ref, descriptors_spare[i], matches_spare[i]);
+        if (best_matches_size < matches_spare[i].size()) {
+          best_matches_size = matches_spare[i].size();
           best_matches_idx = i;
         }
       }
       keypoints_ref = keypoints_spare[best_matches_idx];
       descriptors_ref = descriptors_spare[best_matches_idx];
-      matches = matches_spare[best_matches_idx];
-      ref_cnt = img_cnt - best_matches_idx - 1;
+      OrbMatch(descriptors_ref, descriptors_rt, matches);
+      ref_cnt = max(img_cnt - best_matches_idx - 1, 0);
     }
 
     // affine transformation

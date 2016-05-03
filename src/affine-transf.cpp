@@ -145,7 +145,7 @@ static AffineTransf GetAffineTransfImpl(
   vector<AffineTransf> patterns(1, transf_train[0]);
   vector<int> weights(1, 1);
   size_t transf_train_size = transf_train.size();
-  int max_weight = max(1, int(max_weight_factor * transf_train_size));
+  int max_weight = max(7, int(max_weight_factor * transf_train_size));
 
   for (size_t i = 1; i < transf_train_size; ++i) {
     float dist_min = FLT_MAX;
