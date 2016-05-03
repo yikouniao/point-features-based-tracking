@@ -325,6 +325,8 @@ static const Point mark_array[] = {
   Point{0, 1}
 };
 
+#define ADAPTIVE2BACKGROUND false
+
 // marks a point on an image
 template<typename T>
 void MarkPoint(Mat_<T>& img, const Point& center) {
@@ -332,6 +334,10 @@ void MarkPoint(Mat_<T>& img, const Point& center) {
     Point pt{center + e};
     if (pt.x > int(img.cols) || pt.y > int(img.rows))
       break;
+#if ADAPTIVE2BACKGROUND
     img(pt) = img(pt) < 180 ? 255 : 0;
+#else
+    img(pt) = 255;
+#endif
   }
 }

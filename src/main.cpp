@@ -110,6 +110,8 @@ int main(int argc, char** argv) {
           best_matches_idx = i;
         }
       }
+      keypoints_ref = keypoints_spare[best_matches_idx];
+      descriptors_ref = descriptors_spare[best_matches_idx];
       matches = matches_spare[best_matches_idx];
       ref_cnt = img_cnt - best_matches_idx - 1;
     }
