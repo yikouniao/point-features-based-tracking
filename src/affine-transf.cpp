@@ -107,12 +107,14 @@ AffineTransf GetAffineTransf(
     const std::vector<DescMatch>& matches) {
   vector<AffineTransf> transf_train;
 
+// judges whether 2 points in reference or dstination image are the same
 #define NOT_SAME_POINTS(i, j) \
     (EuclidDistSquare(kps_ref[matches[i].idx_query].point, \
                       kps_ref[matches[j].idx_query].point) > 1e-4 && \
      EuclidDistSquare(kps_dst[matches[i].idx_train].point, \
                       kps_dst[matches[j].idx_train].point) > 1e-4)
 
+// initialization list for class AffineTransf
 #define GET_POINTS(i, j) \
     {kps_ref[matches[i].idx_query].point, kps_ref[matches[j].idx_query].point,\
      kps_dst[matches[i].idx_train].point, kps_dst[matches[j].idx_train].point}

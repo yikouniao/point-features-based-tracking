@@ -1,5 +1,5 @@
 #include "main.h"
-#include "fstream"
+#include <fstream>
 #include "orb.h"
 #include "file.h"
 #include "err.h"
@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
   obj_res[0] = obj_rel[0];
 
   int img_cnt = 0;
+  int ref_cnt = 0;
   string img_ref_fname = img_file_path + img_fname; // reference image
   string img_rt_fname = img_ref_fname;              // real-time image
   string result_fname = results_path + img_fname;   // result image
@@ -78,25 +79,57 @@ int main(int argc, char** argv) {
   ImgWrite(result_fname, img_ref);
   img_ref.Release();
 
-  // other imgs
+  // Save infomation of last 3 images as spare reference
+  vector<vector<KeyPoint>> keypoints_spare(spare_num);
+  vector<OrbDescriptors> descriptors_spare(spare_num);
+
+  // Process real-time images
   for (++img_cnt; img_cnt < img_num; ++img_cnt) {
     GetNextImgFileName(img_rt_fname);
+
     // orb
     Mat img_rt = ImgRead(img_rt_fname);
     vector<KeyPoint> keypoints_rt;
     OrbDescriptors descriptors_rt;
     orb->OrbImpl(img_rt, keypoints_rt, descriptors_rt);
+
     // match
     vector<DescMatch> matches;
     OrbMatch(descriptors_ref, descriptors_rt, matches);
+
+    // If there're no enouge matches, reselect reference image from spare ones,
+    // which has the biggest matches.size().
+    if (matches.size() < 20) {
+      vector<vector<DescMatch>> matches_spare(spare_num);
+      size_t best_matches = 0;
+      int best_matches_idx = 0;
+      for (int i = 0; i < spare_num; ++i) {
+        OrbMatch(descriptors_spare[i], descriptors_rt, matches_spare[i]);
+        if (best_matches < matches_spare[i].size()) {
+          best_matches = matches_spare[i].size();
+          best_matches_idx = i;
+        }
+      }
+      matches = matches_spare[best_matches_idx];
+      ref_cnt = img_cnt - best_matches_idx - 1;
+    }
+
     // affine transformation
     AffineTransf{GetAffineTransf(keypoints_ref, keypoints_rt, matches)}.
-        GetDstPoint(obj_rel[0], obj_res[img_cnt]);
+        GetDstPoint(obj_res[ref_cnt], obj_res[img_cnt]);
+
     // Save results
     GetNextImgFileName(result_fname);
     MarkPoint(img_rt, obj_res[img_cnt]);
+    MarkPoint(img_rt, obj_rel[img_cnt]);
     ImgWrite(result_fname, img_rt);
     img_rt.Release();
+
+    // Save as spare reference
+    keypoints_spare.erase(--keypoints_spare.end());
+    keypoints_spare.insert(keypoints_spare.begin(), keypoints_rt);
+    descriptors_spare.erase(--descriptors_spare.end());
+    descriptors_spare.insert(descriptors_spare.begin(), descriptors_rt);
   }
 
   delete orb;
