@@ -1,9 +1,18 @@
 #include "main.h"
+#include <iostream>
 #include <fstream>
 #include "orb.h"
 #include "file.h"
 #include "err.h"
 #include "affine-transf.h"
+
+#define COUNT_TIME false
+
+#if COUNT_TIME
+#include <iostream>
+#include <sys/timeb.h>
+#include <ctime>
+#endif
 
 using namespace std;
 
@@ -66,6 +75,11 @@ int main(int argc, char** argv) {
   string img_rt_fname = img_ref_fname;              // real-time image
   string result_fname = results_path + img_fname;   // result image
 
+#if COUNT_TIME
+  struct timeb startTime, endTime;
+  ftime(&startTime);
+#endif
+
   OrbMethod* orb = new OrbMethod();
 
   // orb for the first image
@@ -100,6 +114,7 @@ int main(int argc, char** argv) {
     // If there're no enouge matches, reselect reference image from spare ones,
     // which has the biggest matches.size().
     if (matches.size() < 18) {
+      //std::cout << img_cnt << '\n';
       vector<vector<DescMatch>> matches_spare(spare_num);
       size_t best_matches_size = 0;
       int best_matches_idx = 0;
@@ -123,7 +138,7 @@ int main(int argc, char** argv) {
     // Save results
     GetNextImgFileName(result_fname);
     MarkPoint(img_rt, obj_res[img_cnt]);
-    MarkPoint(img_rt, obj_rel[img_cnt]);
+    //MarkPoint(img_rt, obj_rel[img_cnt]);
     ImgWrite(result_fname, img_rt);
     img_rt.Release();
 
@@ -133,8 +148,12 @@ int main(int argc, char** argv) {
     descriptors_spare.erase(--descriptors_spare.end());
     descriptors_spare.insert(descriptors_spare.begin(), descriptors_rt);
   }
-
   delete orb;
+
+#if COUNT_TIME
+  ftime(&endTime);
+  std::cout << (endTime.time - startTime.time) * 1000 + (endTime.millitm - startTime.millitm) << endl;
+#endif
 
   SaveResPos(obj_res);
 

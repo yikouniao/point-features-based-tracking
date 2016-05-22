@@ -6,9 +6,8 @@
 /Release
 
 # exclude the images
-/complex building/*
 /bridge/*
-
-# exclude the test code
-/src/test-cv.cpp
-/src/test-cv.h
+/bridge_noise/*
+/bridge_rotation/*
+/complex building/*
+/complex building_noise/*
