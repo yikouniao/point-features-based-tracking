@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
     // If there're no enouge matches, reselect reference image from spare ones,
     // which has the biggest matches.size().
     if (matches.size() < 18) {
-      //std::cout << img_cnt << '\n';
+      //cout << img_cnt << '\n';
       vector<vector<DescMatch>> matches_spare(spare_num);
       size_t best_matches_size = 0;
       int best_matches_idx = 0;
@@ -152,7 +152,9 @@ int main(int argc, char** argv) {
 
 #if COUNT_TIME
   ftime(&endTime);
-  std::cout << (endTime.time - startTime.time) * 1000 + (endTime.millitm - startTime.millitm) << endl;
+  cout << "\ntime elapsed: " <<
+          (endTime.time - startTime.time) * 1000 +
+          (endTime.millitm - startTime.millitm) << "ms.\n";
 #endif
 
   SaveResPos(obj_res);

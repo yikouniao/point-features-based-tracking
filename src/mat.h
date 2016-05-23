@@ -322,7 +322,7 @@ Mat_<T> Resize(const Mat_<T>& src, float fx = 1.f, float fy = 1.f) {
 static const Point mark_array[] = {
   Point{0, -1},
   Point{-1, 0}, Point{0, 0}, Point{1, 0},
-  Point{0, 1}
+  Point{0, 1},
 };
 
 #define ADAPTIVE2BACKGROUND false
