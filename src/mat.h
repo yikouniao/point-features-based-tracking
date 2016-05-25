@@ -320,9 +320,10 @@ Mat_<T> Resize(const Mat_<T>& src, float fx = 1.f, float fy = 1.f) {
 }
 
 static const Point mark_array[] = {
-  Point{0, -1},
-  Point{-1, 0}, Point{0, 0}, Point{1, 0},
-  Point{0, 1},
+  Point{0, -3}, Point{0, -2}, Point{0, -1},
+  Point{-3, 0}, Point{-2, 0}, Point{-1, 0}, Point{0, 0},
+  Point{1, 0},Point{2, 0},Point{3, 0},
+  Point{0, 1},Point{0, 2},Point{0, 3}
 };
 
 #define ADAPTIVE2BACKGROUND false
@@ -332,7 +333,7 @@ template<typename T>
 void MarkPoint(Mat_<T>& img, const Point& center) {
   for (const auto& e : mark_array) {
     Point pt{center + e};
-    if (pt.x > int(img.cols) || pt.y > int(img.rows))
+    if (pt.x >= int(img.cols) || pt.x < 0 || pt.y >= int(img.rows) || pt.y < 0)
       break;
 #if ADAPTIVE2BACKGROUND
     img(pt) = img(pt) < 180 ? 255 : 0;
