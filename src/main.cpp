@@ -6,6 +6,14 @@
 #include "err.h"
 #include "affine-transf.h"
 
+static const std::string img_file_path = "./fangkongzhendi/";//"./bridge/";
+static const std::string results_path = img_file_path + "results/";
+static const std::string img_fname = "simu0000.bmp";//"ngsimu0000.bmp";
+static const std::string rel_pos_fname = "relPosition.txt";
+static const std::string res_pos_fname = "resPosition.txt";
+static const int img_num = 225;
+static const int spare_num = 3;
+
 #define COUNT_TIME false
 
 #if COUNT_TIME
@@ -114,7 +122,7 @@ int main(int argc, char** argv) {
     // If there're no enouge matches, reselect reference image from spare ones,
     // which has the biggest matches.size().
     if (matches.size() < 18) {
-      //cout << img_cnt << '\n';
+      cout << img_cnt << '\n';
       vector<vector<DescMatch>> matches_spare(spare_num);
       size_t best_matches_size = 0;
       int best_matches_idx = 0;
